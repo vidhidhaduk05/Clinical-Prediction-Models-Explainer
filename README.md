@@ -1,7 +1,7 @@
 # Clinical Prediction Models Explainer
 
 > **A Visual Broadsheet on Medical Statistics, Prediction Modeling & Stroke Recalibration**  
-> Inspired by [MLU-Explain](https://mlu-explain.github.io/) and [21st.dev](https://21st.dev), built for medical students, clinical researchers, and data scientists.
+
 
 🌐 **Live Demo:** [https://vidhidhaduk05.github.io/Clinical-Prediction-Models-Explainer/](https://vidhidhaduk05.github.io/Clinical-Prediction-Models-Explainer/)
 
