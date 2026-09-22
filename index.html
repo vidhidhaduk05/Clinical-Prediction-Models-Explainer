@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clinical Concepts — Statistics without the fear</title>
+  <meta name="description" content="Interactive medical statistics lessons, from your first data table to clinical prediction models. Based on four stroke manuscripts and a 19-chapter modeling curriculum.">
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232f48cc'/%3E%3Cpath d='M6 24L12 18L18 19L26 8' fill='none' stroke='white' stroke-width='3'/%3E%3Ccircle cx='12' cy='12' r='2' fill='%236ce0cc'/%3E%3Ccircle cx='22' cy='24' r='2' fill='%236ce0cc'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to lesson</a>
+  <header class="masthead">
+    <div class="masthead__meta">
+      <span>THE CLINICAL PREDICTION GAZETTE</span>
+      <span class="masthead__date">VOL. CLXXVI · COMPREHENSIVE STROKE EDITION · "TRUTH IN CALIBRATION"</span>
+      <span>A MEDICAL STUDENT'S FIELD GUIDE</span>
+    </div>
+    <div class="masthead__title-wrap">
+      <div class="masthead__title">
+        <h1 class="masthead__logo-text">Clinical Concepts</h1>
+      </div>
+      <p class="masthead__subtitle">A Visual Broadsheet on Medical Statistics, Prediction Modeling & Stroke Recalibration</p>
+    </div>
+    <nav class="masthead__nav" aria-label="Main navigation">
+      <a href="#csv" data-top="lessons" class="active">Learn by doing</a>
+      <a href="#papers" data-top="papers">The four papers</a>
+      <a href="#sources" data-top="sources">Sources & scope</a>
+      <button id="menu-toggle" class="masthead__menu-btn" aria-expanded="false" aria-controls="sidebar">Table of Contents ▾</button>
+    </nav>
+  </header>
+
+  <div class="app-layout">
+    <aside id="sidebar" class="sidebar">
+      <div class="rail-heading">THE LEARNING PATH</div>
+      <p class="rail-note">Small ideas. One at a time.</p>
+      <nav id="lesson-nav" aria-label="Lesson navigation">
+        <div class="nav-group">
+          <h2>Start Here</h2>
+          <a href="#csv" id="nav-link-csv" data-lesson="csv" class="active">
+            <span class="lesson-num">1</span>
+            <span>Start with a CSV</span>
+          </a>
+          <a href="#linear" id="nav-link-linear" data-lesson="linear">
+            <span class="lesson-num">2</span>
+            <span>Linear Regression</span>
+          </a>
+          <a href="#metrics" id="nav-link-metrics" data-lesson="metrics">
+            <span class="lesson-num">3</span>
+            <span>Regression Metrics</span>
+          </a>
+        </div>
+
+        <div class="nav-group">
+          <h2>Clinical Prediction Fundamentals</h2>
+          <a href="#causation" id="nav-link-causation" data-lesson="causation">
+            <span class="lesson-num">4</span>
+            <span>Association, Prediction, Causation</span>
+          </a>
+          <a href="#logistic" id="nav-link-logistic" data-lesson="logistic">
+            <span class="lesson-num">5</span>
+            <span>Binary Outcomes & Logistic Regression</span>
+          </a>
+          <a href="#ordinal" id="nav-link-ordinal" data-lesson="ordinal">
+            <span class="lesson-num">6</span>
+            <span>Ordinal Outcomes & Proportional Odds</span>
+          </a>
+          <a href="#survival" id="nav-link-survival" data-lesson="survival">
+            <span class="lesson-num">7</span>
+            <span>Time-to-Event & Survival Analysis</span>
+          </a>
+        </div>
+
+        <div class="nav-group">
+          <h2>Data Problems & Flexible Modeling</h2>
+          <a href="#missing" id="nav-link-missing" data-lesson="missing">
+            <span class="lesson-num">8</span>
+            <span>Missing Data & Imputation</span>
+          </a>
+          <a href="#splines" id="nav-link-splines" data-lesson="splines">
+            <span class="lesson-num">9</span>
+            <span>Restricted Cubic Splines</span>
+          </a>
+          <a href="#phenotyping" id="nav-link-phenotyping" data-lesson="phenotyping">
+            <span class="lesson-num">10</span>
+            <span>Residual Phenotyping</span>
+          </a>
+          <a href="#interactions" id="nav-link-interactions" data-lesson="interactions">
+            <span class="lesson-num">11</span>
+            <span>Interactions & Standardization</span>
+          </a>
+          <a href="#features" id="nav-link-features" data-lesson="features">
+            <span class="lesson-num">12</span>
+            <span>Feature Engineering & Correlation</span>
+          </a>
+        </div>
+
+        <div class="nav-group">
+          <h2>Validation & Performance</h2>
+          <a href="#validation" id="nav-link-validation" data-lesson="validation">
+            <span class="lesson-num">13</span>
+            <span>Repeated k-Fold Cross-Validation</span>
+          </a>
+          <a href="#bootstrap" id="nav-link-bootstrap" data-lesson="bootstrap">
+            <span class="lesson-num">14</span>
+            <span>Bootstrap & Out-of-Bag Evaluation</span>
+          </a>
+          <a href="#auc" id="nav-link-auc" data-lesson="auc">
+            <span class="lesson-num">15</span>
+            <span>AUC & Discrimination</span>
+          </a>
+          <a href="#calibration" id="nav-link-calibration" data-lesson="calibration">
+            <span class="lesson-num">16</span>
+            <span>Calibration & Brier Score</span>
+          </a>
+          <a href="#dca" id="nav-link-dca" data-lesson="dca">
+            <span class="lesson-num">17</span>
+            <span>Decision Curve Analysis (DCA)</span>
+          </a>
+          <a href="#continuous" id="nav-link-continuous" data-lesson="continuous">
+            <span class="lesson-num">18</span>
+            <span>Continuous Outcomes Comparison</span>
+          </a>
+        </div>
+
+        <div class="nav-group">
+          <h2>Model Stability & Reporting</h2>
+          <a href="#penalization" id="nav-link-penalization" data-lesson="penalization">
+            <span class="lesson-num">19</span>
+            <span>Penalization (Ridge, Lasso)</span>
+          </a>
+          <a href="#ml" id="nav-link-ml" data-lesson="ml">
+            <span class="lesson-num">20</span>
+            <span>Machine Learning Benchmarking</span>
+          </a>
+          <a href="#interpretability" id="nav-link-interpretability" data-lesson="interpretability">
+            <span class="lesson-num">21</span>
+            <span>Interpretability & Explainability</span>
+          </a>
+          <a href="#updating" id="nav-link-updating" data-lesson="updating">
+            <span class="lesson-num">22</span>
+            <span>Model Updating & Transportability</span>
+          </a>
+          <a href="#tripod" id="nav-link-tripod" data-lesson="tripod">
+            <span class="lesson-num">23</span>
+            <span>TRIPOD+AI & Decision Trace</span>
+          </a>
+          <a href="#antipatterns" id="nav-link-antipatterns" data-lesson="antipatterns">
+            <span class="lesson-num">24</span>
+            <span>Anti-Patterns Catalog</span>
+          </a>
+        </div>
+      </nav>
+      <div class="rail-footer">
+        Teaching examples, not clinical tools.<br>
+        No patient data is collected.
+      </div>
+    </aside>
+
+    <main id="main" tabindex="-1">
+      <div id="content">
+        <div class="crumb">
+          <span>Start Here · Lesson 1 of 24</span>
+          <a href="#papers" class="pill">View Stroke Papers</a>
+        </div>
+
+        <div class="lesson-head">
+          <div class="eyebrow">Module 1 · Lesson 1 of 24</div>
+          <h1>Start with a CSV: Your Clinical Data Table</h1>
+          <p class="lead">Before equations or machine learning algorithms, every clinical prediction study begins with a structured patient cohort stored in a row-and-column table.</p>
+        </div>
+
+        <div class="opening">
+          <div class="explanation">
+            <div class="analogy">
+              <h3>Everyday Analogy: The Hospital Floor Census</h3>
+              <p>Think of a CSV file as a morning hospital census chart. Each row is a unique patient in a bed. Each column is a specific clinical vital or lab recorded on admission. If a nurse didn't draw a blood glucose, that cell is empty (missing). You cannot begin treating the patient without understanding the census first.</p>
+            </div>
+
+            <div class="section">
+              <div class="section-label">Python Walkthrough</div>
+              <p>Here is how a clinical research team inspects an acute ischemic stroke cohort loaded from a CSV using Python's <code>pandas</code> library:</p>
+              <pre><code>import pandas as pd
+
+# 1. Load the admission stroke cohort
+df = pd.read_csv("stroke_cohort.csv")
+
+# 2. Check cohort size: (patients, clinical predictors)
+print(df.shape)  # e.g., (626, 14) -> 626 patients, 14 variables
+
+# 3. Inspect data types and missingness
+print(df.dtypes)
+print(df.isna().sum())</code></pre>
+              <p class="code-caption"><code>df.shape</code> tells you your sample size immediately. In clinical modeling, sample size governs how many parameters your model can safely estimate without overfitting.</p>
+            </div>
+
+            <div class="section">
+              <div class="section-label">Medical Context: Stroke Predictors</div>
+              <p>In ischemic stroke thrombectomy studies, key baseline predictors include:</p>
+              <ul>
+                <li><strong>NIHSS</strong> (0–42): National Institutes of Health Stroke Scale (ordinal neurological severity).</li>
+                <li><strong>Infarct Volume</strong> (mm³): Core ischemic volume estimated from CT Perfusion.</li>
+                <li><strong>Admission NWU</strong> (%): Net Water Uptake measuring early ischemic brain edema.</li>
+                <li><strong>Time Metrics</strong> (hours): Last Known Well (LKW) to hospital arrival.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="lab" id="lab-container">
+            <div class="lab-top">
+              <span>Interactive Patient Cohort Table</span>
+              <span class="demo-label">n=626 Patients Sample</span>
+            </div>
+            <div class="lab-body">
+              <p class="subtle">Explore the admission stroke cohort. Missing values are flagged in orange.</p>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Age</th>
+                      <th>Sex</th>
+                      <th>NIHSS</th>
+                      <th>Infarct (mL)</th>
+                      <th>NWU (%)</th>
+                      <th>mRS (90d)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>#101</td><td>68</td><td>M</td><td>16</td><td>42.5</td><td>8.4%</td><td>2</td></tr>
+                    <tr><td>#102</td><td>74</td><td>F</td><td>21</td><td>78.1</td><td>14.2%</td><td>4</td></tr>
+                    <tr><td>#103</td><td>59</td><td>M</td><td>9</td><td>18.0</td><td>5.1%</td><td>1</td></tr>
+                    <tr><td>#104</td><td>82</td><td>F</td><td>19</td><td>65.4</td><td class="missing">Missing</td><td>5</td></tr>
+                    <tr><td>#105</td><td>63</td><td>M</td><td>14</td><td>34.2</td><td>7.9%</td><td>2</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="readout" style="margin-top:14px;">
+                <strong>Key Clinical Takeaway:</strong> Before running regressions or ML algorithms, always inspect variable distributions, units, and missingness patterns.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lesson-bottom">
+          <span class="nav-btn__spacer"></span>
+          <a href="#linear" class="nav-btn next-btn" id="btn-next-lesson">
+            <span class="nav-btn__dir">Next Lesson →</span>
+            <span class="nav-btn__title">Lesson 2: Linear Regression</span>
+          </a>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <p class="footer-credit">The Clinical Concepts Explainer · Built around Acute Stroke Research & Prediction Modeling · Published for Medical Education</p>
+    <p style="margin-top: 6px;"><a href="#sources" style="font-family: var(--font-sans); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 600; color: var(--color-ink);">Read the Teaching & Methodological Notes →</a></p>
+  </footer>
+
+  <noscript>
+    <div style="padding:20px;background:#fff2e9;color:#bd4d24;text-align:center;font-weight:600;">
+      This interactive guide uses JavaScript for real-time statistical calculations and simulations.
+    </div>
+  </noscript>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+# Secrets & Environment Variables (STRICT - ZERO LEAKAGE)
+.env
+.env.*
+*.key
+*.pem
+
+# Scratch & Temporary Testing Files
+scratch/
+test_dom.html
+build_clean.js
+part*.js
+
+# Local Private Manuscript Files
+*.docx
+
+# Knowledge Graph & Development Cache
+graphify-out/
+node_modules/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# OS Specific
+.DS_Store
+Thumbs.db
