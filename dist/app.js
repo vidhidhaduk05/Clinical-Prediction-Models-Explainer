@@ -3376,7 +3376,7 @@ function renderAntipatternsLab(container) {
    Special Pages: Sources & Clinical Methodology Standards
    ========================================================================== */
 
-function function renderPapersPage(container) {
+function renderPapersPage(container) {
   renderSourcesPage(container);
 }
 
@@ -3433,6 +3433,7 @@ class App {
 
   setupEvents() {
     window.addEventListener("hashchange", () => this.handleRoute());
+    window.addEventListener("popstate", () => this.handleRoute());
 
     // Robust click delegation for all lesson navigation links
     document.addEventListener("click", (e) => {
@@ -3445,9 +3446,8 @@ class App {
             e.preventDefault();
             if (window.location.hash !== `#${targetHash}`) {
               window.location.hash = targetHash;
-            } else {
-              this.handleRoute();
             }
+            this.handleRoute();
             window.scrollTo({ top: 0, behavior: "smooth" });
             const mainEl = document.getElementById("main");
             if (mainEl) mainEl.scrollTop = 0;
@@ -3473,7 +3473,6 @@ class App {
         }
       }
     });
-    window.addEventListener("hashchange", () => this.handleRoute());
 
     if (this.menuToggle && this.sidebar) {
       this.menuToggle.addEventListener("click", () => {
@@ -3585,17 +3584,41 @@ class App {
 
     if (hash === "papers") {
       renderPapersPage(this.contentEl);
+      this.renderMath();
       return;
     }
 
     if (hash === "sources") {
       renderSourcesPage(this.contentEl);
+      this.renderMath();
       return;
     }
 
     const lesson = LESSON_CONTENT[hash] || LESSON_CONTENT["csv"];
     const lessonMeta = LESSONS_MAP[hash] || LESSONS_MAP["csv"];
     this.renderLesson(hash, lesson, lessonMeta);
+    this.renderMath();
+  }
+
+  renderMath(container) {
+    const el = container || this.contentEl;
+    if (!el) return;
+    if (typeof renderMathInElement === "function") {
+      try {
+        renderMathInElement(el, {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "$", right: "$", display: false }
+          ],
+          throwOnError: false,
+          ignoredTags: ["script", "noscript", "style", "textarea", "pre"]
+        });
+      } catch (err) {
+        console.warn("KaTeX render error:", err);
+      }
+    } else {
+      setTimeout(() => this.renderMath(el), 150);
+    }
   }
 
   renderLesson(id, lesson, meta) {
@@ -3611,7 +3634,7 @@ class App {
     let html = `
       <div class="crumb">
         <span>${meta ? meta.group : ''} · Lesson ${meta ? meta.num : ''} of 24</span>
-        <a href="#papers" class="pill">View Stroke Papers</a>
+        <a href="#sources" class="pill">Methodology & Sources</a>
       </div>
 
       <div class="lesson-head">
@@ -3651,7 +3674,7 @@ class App {
             <span class="nav-btn__title">Lesson ${next.num}: ${next.title}</span>
           </a>
         ` : `
-          <a href="#papers" class="nav-btn next-btn complete-btn" id="btn-next-lesson">
+          <a href="#sources" class="nav-btn next-btn complete-btn" id="btn-next-lesson">
             <span class="nav-btn__dir">Curriculum Complete →</span>
             <span class="nav-btn__title">Evidence Sources & Standards</span>
           </a>
