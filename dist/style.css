@@ -53,6 +53,26 @@ button, input, select {
   font: inherit;
 }
 
+.skip {
+  position: absolute;
+  top: -100px;
+  left: 1rem;
+  background: var(--color-ink);
+  color: var(--color-paper);
+  padding: 8px 16px;
+  z-index: 1000;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 0 0 4px 4px;
+  transition: top 0.15s ease;
+}
+
+.skip:focus {
+  top: 0;
+}
+
 button, a, input, select, summary {
   -webkit-tap-highlight-color: transparent;
 }
