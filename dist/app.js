@@ -100,6 +100,145 @@ CURRICULUM_GROUPS.forEach(g => {
   });
 });
 
+
+/* ==========================================================================
+   Reusable Pedagogical Component Renderers (17-Step Core Architecture)
+   ========================================================================== */
+
+function renderPredictBeforeReveal(id, badge, prompt, options, revealHtml) {
+  return `
+    <div class="predict-reveal" id="predict-${id}">
+      <div class="predict-header">
+        <span class="predict-badge">${badge || 'Guess Before Reveal'}</span>
+      </div>
+      <div class="predict-prompt">${prompt}</div>
+      <div class="predict-options">
+        ${options.map((opt, i) => `
+          <button class="predict-opt" data-predict-id="${id}" data-opt-idx="${i}" data-correct="${opt.correct ? 'true' : 'false'}">
+            ${opt.text}
+          </button>
+        `).join('')}
+      </div>
+      <div class="predict-reveal-content" id="predict-reveal-${id}" style="display: none;">
+        ${revealHtml}
+      </div>
+    </div>
+  `;
+}
+
+function renderTokenCodeBlock(title, hint, lines) {
+  const safeId = title.replace(/\W+/g, '_');
+  return `
+    <div class="token-code-container">
+      <div class="token-code-header">
+        <span class="token-code-title">${title}</span>
+        <span class="token-code-hint">${hint || 'Click or tap any token to inspect its meaning'}</span>
+      </div>
+      <div class="token-code-body">
+        ${lines.map((line, lIdx) => `
+          <div class="token-code-line">
+            ${line.tokens.map((tok, tIdx) => `
+              <span class="token-pill ${tok.type ? 'token-' + tok.type : ''}" data-explainer-id="tok-${safeId}-${lIdx}-${tIdx}">
+                ${tok.text}
+              </span>
+            `).join('')}
+          </div>
+        `).join('')}
+      </div>
+      <div class="token-explainer-deck">
+        <div class="token-explainer-item active" id="tok-${safeId}-default">
+          <em>💡 Click or tap any highlighted code token above to learn exactly what it does in clinical Python.</em>
+        </div>
+        ${lines.flatMap((line, lIdx) => line.tokens.map((tok, tIdx) => `
+          <div class="token-explainer-item" id="tok-${safeId}-${lIdx}-${tIdx}">
+            <strong><code>${tok.text}</code></strong>: ${tok.desc}
+          </div>
+        `)).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderWhyCareBox(headline, text) {
+  return `
+    <div class="why-care">
+      <span class="why-care-badge">Why Do I Care?</span>
+      <div class="why-care-title">${headline}</div>
+      <p>${text}</p>
+    </div>
+  `;
+}
+
+function renderCommonTrapCard(trapTitle, badText, goodText) {
+  return `
+    <div class="common-trap">
+      <div class="common-trap-header">
+        <span class="common-trap-badge">⚠️ Common Pitfall</span>
+        <span class="common-trap-title">${trapTitle}</span>
+      </div>
+      <div class="common-trap-grid">
+        <div class="trap-col bad">
+          <div class="trap-col-label">❌ Dangerous Assumption</div>
+          <p>${badText}</p>
+        </div>
+        <div class="trap-col good">
+          <div class="trap-col-label">✅ Correct Clinical Understanding</div>
+          <p>${goodText}</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderXYSelector(id, clinicalQuestion, variables) {
+  return `
+    <div class="xy-selector" id="xy-${id}">
+      <div class="xy-prompt"><strong>Step 1: Clinical Question</strong> — "${clinicalQuestion}"</div>
+      <p class="subtle">Click each clinical variable below to categorize it into <strong>What We Know ($X$, Candidate Predictor)</strong> vs. <strong>What We Want to Predict ($Y$, Outcome Target)</strong>:</p>
+      <div class="xy-card-bank">
+        ${variables.map((v, i) => `
+          <span class="xy-pill" data-xy-id="${id}" data-var-idx="${i}" data-target-role="${v.role}" data-var-name="${v.name}">
+            ${v.name}
+          </span>
+        `).join('')}
+      </div>
+      <div class="xy-columns">
+        <div class="xy-box" id="xy-box-x-${id}">
+          <div class="xy-box-title">
+            <span>What We Know ($X$, Candidate Predictor)</span>
+            <span class="badge">Input</span>
+          </div>
+          <div class="xy-box-items" id="xy-items-x-${id}">
+            <em class="subtle" style="font-size:0.8rem;">Click a variable above to assign it here...</em>
+          </div>
+        </div>
+        <div class="xy-box" id="xy-box-y-${id}">
+          <div class="xy-box-title">
+            <span>What We Want to Predict ($Y$, Outcome Target)</span>
+            <span class="badge">Target</span>
+          </div>
+          <div class="xy-box-items" id="xy-items-y-${id}">
+            <em class="subtle" style="font-size:0.8rem;">Click a variable above to assign it here...</em>
+          </div>
+        </div>
+      </div>
+      <div class="readout" id="xy-feedback-${id}" style="margin-top:12px; display:none;"></div>
+    </div>
+  `;
+}
+
+function renderNarrativeBridge(nextLessonId, nextLessonNum, nextLessonTitle, reason) {
+  return `
+    <div class="narrative-bridge">
+      <div class="narrative-bridge-text">
+        <strong>Why Lesson ${nextLessonNum} Exists</strong>
+        ${reason}
+      </div>
+      <a href="#${nextLessonId}" class="narrative-bridge-btn">Continue to Lesson ${nextLessonNum}: ${nextLessonTitle} →</a>
+    </div>
+  `;
+}
+
 /* ==========================================================================
    Lesson Content Builders
    ========================================================================== */
@@ -111,80 +250,130 @@ const LESSON_CONTENT = {
     lead: "Before machine learning algorithms or statistical models, every clinical prediction study begins with a patient cohort table. Understanding rows, columns, and data structures is your foundation.",
     analogy: {
       title: "The Emergency Department Census Board",
-      text: "Think of a CSV file as the morning ED census board. Each row is a unique patient in a treatment bay. Each column is a specific vital sign, laboratory value, or imaging biomarker recorded on arrival. If a lab was not drawn, that cell is empty (missing). You cannot treat the patient without knowing who is in each bed and what data was collected."
+      text: "Think of a CSV file as the morning Emergency Department census board. Each row is a unique patient in a treatment bay. Each column is a specific vital sign, laboratory value, or imaging biomarker recorded on arrival. If a blood test was not drawn, that cell is empty (missing). You cannot treat the patient without knowing who is in each bed and what measurements exist."
     },
     sections: [
       {
-        label: "1. The Clinical Data Anatomy: Rows and Columns",
+        label: "1. The Clinical Question & The Data Table",
         html: `
-          <p>In clinical predictive modeling, your dataset has a strict mathematical architecture:</p>
+          <p>Every predictive modeling project begins not with code, but with a specific <strong>clinical question</strong>:</p>
+          <div class="patient-calc">
+            <h4>The Clinical Question:</h4>
+            <p><em>"When an acute ischemic stroke patient arrives at the emergency department, can we predict their eventual 90-day recovery based on clinical and imaging measurements available at triage?"</em></p>
+          </div>
+          <p>To answer this, our patient cohort is stored in a <strong>CSV (Comma-Separated Values)</strong> file. A CSV is the simplest digital spreadsheet format: plain text where each line represents one patient and commas separate each medical measurement.</p>
           <div class="metric-grid">
             <div class="metric">
-              <span>Rows (n = Sample Size)</span>
+              <span>Rows ($n$ = Sample Size)</span>
               <b>626 Patients</b>
-              <p class="subtle">Each row is an independent acute ischemic stroke patient.</p>
+              <p class="subtle">Each row is one independent acute ischemic stroke patient.</p>
             </div>
             <div class="metric">
-              <span>Columns (p = Candidate Predictors)</span>
-              <b>14 Clinical Variables</b>
-              <p class="subtle">Demographics, CT Perfusion metrics, and 90-day functional recovery.</p>
+              <span>Columns ($p$ = Candidate Variables)</span>
+              <b>14 Clinical Features</b>
+              <p class="subtle">Demographics, CT Perfusion scores, and recovery outcomes.</p>
             </div>
           </div>
-          <div class="patient-calc">
-            <h4>The Three Critical Variable Roles:</h4>
-            <ul>
-              <li><strong>The Outcome ($Y$):</strong> What we want to predict (e.g., Final Infarct Volume in mL, or 90-day modified Rankin Scale $\\\\le 2$).</li>
-              <li><strong>The Candidate Predictors ($X$):</strong> Clinical and imaging measurements available *before* the treatment decision (e.g., Baseline Core, CVO score, Age, NIHSS).</li>
-              <li><strong>The Treatment & Confounders ($Z$):</strong> Reperfusion status (TICI 2b/3 vs. 0-2a), onset-to-groin puncture time, and hospital center.</li>
-            </ul>
-          </div>
         `
       },
       {
-        label: "2. Inspecting the Cohort with Python & pandas",
+        label: "2. Guess Before Reveal: The Dangerous Predictor",
+        html: renderPredictBeforeReveal(
+          "csv-leakage",
+          "Clinical Triage Check",
+          "You are training a model to predict 90-day stroke disability at hospital admission. Which of the following variables would be catastrophic to include as a candidate predictor?",
+          [
+            { text: "A) Patient Age on arrival (e.g. 72 years)", correct: false },
+            { text: "B) Baseline NIHSS stroke severity on arrival (Score 16)", correct: false },
+            { text: "C) Acute CT Perfusion Ischemic Core Volume (32 mL)", correct: false },
+            { text: "D) Day 7 Symptomatic Intracranial Hemorrhage (sICH)", correct: true }
+          ],
+          `
+            <div class="readout" style="background:#fbeee6; border-color:#e06c3f;">
+              <strong>Correct! Day 7 sICH is forbidden due to Target / Data Leakage.</strong>
+              <p style="margin-top:6px; font-size:0.9rem;">
+                Day 7 complications occur <em>after</em> the baseline triage decision has already been made! Including post-baseline events or measurements that mathematically contain the outcome creates artificial 'super-human' training accuracy that fails catastrophically when deployed at the bedside.
+              </p>
+            </div>
+          `
+        )
+      },
+      {
+        label: "3. Python & pandas: Token-by-Token Deconstruction",
         html: `
-          <p>Here is the exact Python code used to load and audit the acute stroke registry:</p>
-          <pre><code>import pandas as pd
-
-# 1. Load the admission stroke cohort
-df = pd.read_csv("stroke_perfusion_cohort.csv")
-
-# 2. Dimensions: (patients, variables)
-print(df.shape)  # (626, 14) -> 626 patients, 14 variables
-
-# 3. Inspect columns and data types
-print(df.dtypes)
-
-# 4. Count missing clinical entries
-print(df.isna().sum())</code></pre>
-          <p class="code-caption"><code>df.shape</code> tells you your sample size immediately. In clinical modeling, sample size governs how many parameters your model can safely estimate without overfitting.</p>
+          <p>Here is the exact Python code used to load and inspect our acute stroke registry. Even if you have never written a line of code, explore every token below:</p>
+          ${renderTokenCodeBlock(
+            "Loading & Inspecting Stroke Cohort",
+            "Click or tap any keyword below to see its plain-English explanation",
+            [
+              {
+                tokens: [
+                  { text: "import", type: "keyword", desc: "Python command that loads an external software package into your active workspace." },
+                  { text: "pandas", type: "ident", desc: "The industry-standard Python library specifically designed for manipulating tabular datasets (rows and columns)." },
+                  { text: "as", type: "keyword", desc: "Keyword creating a shorthand alias so you don't have to type 'pandas' repeatedly." },
+                  { text: "pd", type: "ident", desc: "The universal 2-letter nickname for pandas used by medical data scientists worldwide." }
+                ]
+              },
+              {
+                tokens: [
+                  { text: "df", type: "ident", desc: "Short for 'DataFrame' — Python's term for a spreadsheet or data table held in memory." },
+                  { text: "=", type: "keyword", desc: "Assignment operator: takes the table produced on the right and stores it into the name on the left." },
+                  { text: "pd.read_csv", type: "func", desc: "The pandas function that reads a text-based CSV file from your computer and parses it into rows and columns." },
+                  { text: "('stroke_cohort.csv')", type: "string", desc: "The filename of our acute stroke registry enclosed in quotation marks." }
+                ]
+              },
+              {
+                tokens: [
+                  { text: "df.shape", type: "func", desc: "Returns a pair of numbers (n_rows, n_cols) — telling you immediately how many patients and variables you have." },
+                  { text: "# (626, 14)", type: "string", desc: "Output: 626 patients, 14 variables." }
+                ]
+              },
+              {
+                tokens: [
+                  { text: "df.isna().sum()", type: "func", desc: "Checks every single cell for missing entries (NaN/empty) and sums the total missing count for each variable." }
+                ]
+              }
+            ]
+          )}
         `
       },
       {
-        label: "3. Presentation Gold: What to Say on Rounds",
-        html: `
-          <div class="presentation-gold">
-            <h4>💡 Presentation Gold: The One Sentence to Memorize</h4>
-            <p>"Every predictive study begins with a structured patient cohort where rows represent independent clinical encounters and columns represent strictly pre-treatment candidate predictors, ensuring that zero post-treatment recovery data leaks into baseline risk estimation."</p>
-          </div>
-        `
+        label: "4. Why Do I Care? Clinical Sample Size & Degrees of Freedom",
+        html: renderWhyCareBox(
+          "Sample Size (n) Governs How Many Variables You Can Safely Study",
+          "In clinical prediction modeling, you cannot simply throw dozens of candidate predictors into a model. A golden rule of biostatistics is having adequate <strong>Events Per Variable (EPV)</strong>. If your cohort has 60 disability events, estimating more than 3–4 predictor parameters creates severe overfitting where the model memorizes past patient noise rather than true biological signals."
+        )
       },
       {
-        label: "4. Check Your Clinical Understanding",
+        label: "5. Common Pitfall: Complete-Case Deletion",
+        html: renderCommonTrapCard(
+          "Dropping Patients with Missing Data ('dropna')",
+          "Throwing away every patient row that has even one missing lab test or imaging metric to make the dataset 'clean' before modeling.",
+          "Complete-case analysis induces severe clinical selection bias. Sicker patients or rapid progressors often miss secondary CT scans! We must preserve our full cohort using Multiple Imputation (Module 3)."
+        )
+      },
+      {
+        label: "6. Check Your Clinical Understanding",
         html: `
           <div class="quiz-box">
             <h4>🧠 Clinical Intuition Quiz</h4>
-            <p>You are building a model at hospital admission to predict 90-day stroke disability. Which variable is a <strong>forbidden predictor</strong> that introduces fatal data leakage?</p>
+            <p>You inspect a stroke registry with <code>df.shape</code> and see <code>(802, 9)</code>. What do those two numbers represent in hospital terms?</p>
             <div class="quiz-options">
-              <button class="quiz-opt" data-correct="false">A) Baseline NIHSS on arrival (Score 16)</button>
-              <button class="quiz-opt" data-correct="false">B) Acute CTP Ischemic Core Volume (32 mL)</button>
-              <button class="quiz-opt" data-correct="true">C) Day 7 Symptomatic Intracranial Hemorrhage (sICH)</button>
-              <button class="quiz-opt" data-correct="false">D) Patient Age (72 years)</button>
+              <button class="quiz-opt" data-correct="false">A) 802 variables collected across 9 stroke hospitals.</button>
+              <button class="quiz-opt" data-correct="true">B) 802 unique stroke patients and 9 clinical/imaging measurements per patient.</button>
+              <button class="quiz-opt" data-correct="false">C) 802 days of data with 9 stroke admissions per day.</button>
+              <button class="quiz-opt" data-correct="false">D) 802 stroke survivors and 9 mortalities.</button>
             </div>
             <div class="quiz-explanation">
-              <strong>Explanation:</strong> Day 7 sICH occurs <em>after</em> admission treatment decisions have already been made! Including post-baseline events as candidate predictors is a classic form of <strong>data leakage</strong> that makes a model unusable at triage.
+              <strong>Explanation:</strong> In tabular clinical data, rows represent independent clinical encounters (802 individual patients), while columns represent the clinical features and outcome metrics recorded for each encounter.
             </div>
           </div>
+          ${renderNarrativeBridge(
+            "linear",
+            2,
+            "Linear Regression",
+            "We now understand our table and its dimensions. But how do we test whether one specific triage measurement (like admission stroke severity) can predict a continuous outcome (like volume of dead brain tissue)?"
+          )}
         `
       }
     ],
@@ -194,103 +383,156 @@ print(df.isna().sum())</code></pre>
   linear: {
     eyebrow: "Module 1 · Lesson 2 of 24",
     h1: "Linear Regression: Modeling Continuous Stroke Outcomes",
-    lead: "Can baseline CT Perfusion help predict final infarct volume? Linear regression finds the optimal hyper-plane through your patient cohort.",
+    lead: "Can baseline stroke severity predict the final volume of dead brain tissue? Linear regression discovers the optimal straight-line relationship through your patient cohort.",
     analogy: {
       title: "The Custom Tailor's Ruler",
-      text: "Imagine a tailor estimating jacket arm length based on customer height and shoulder width. A straight ruler gives an approximate rule-of-thumb: for every inch taller, sleeve length increases by a fraction. Some people have longer arms (positive residual), others shorter (negative residual). The ruler minimizes the total fabric wasted across all customers."
+      text: "Imagine a tailor estimating jacket sleeve length based on customer height. A straight ruler gives an approximate rule-of-thumb: for every inch taller, sleeve length increases by a fixed fraction. Some people have slightly longer arms (positive residual), others shorter (negative residual). The ruler provides a baseline rule that minimizes the total fabric wasted across all customers."
     },
     sections: [
       {
-        label: "1. Core Linear Benchmark Formulation",
+        label: "1. The Clinical Question & Defining X vs. Y",
+        html: `
+          <p>Before writing equations or fitting lines, we must identify the two distinct roles of our clinical variables:</p>
+          ${renderXYSelector(
+            "linear-vars",
+            "Does admission NIHSS score predict final infarct volume?",
+            [
+              { name: "Admission NIHSS (0–42)", role: "x" },
+              { name: "Final Infarct Volume (mL)", role: "y" },
+              { name: "Patient Age (years)", role: "x" },
+              { name: "Blood Glucose on Arrival", role: "x" }
+            ]
+          )}
+          <div class="patient-calc" style="margin-top:14px;">
+            <h4>The Universal Predictive Pattern:</h4>
+            <p><strong>Predictor ($X$):</strong> What information we have available at the moment of prediction (admission NIHSS score).<br>
+            <strong>Outcome ($Y$):</strong> The future biological event we want to estimate (Final Infarct Volume in mL on follow-up imaging).</p>
+          </div>
+        `
+      },
+      {
+        label: "2. Guess Before Reveal: The Meaning of the Slope",
+        html: renderPredictBeforeReveal(
+          "linear-slope",
+          "Clinical Reasoning Check",
+          "If our regression model has a slope coefficient $\\beta_1 = +3.65$, what does that number physically mean for a stroke patient?",
+          [
+            { text: "A) 3.65% of all stroke patients will experience a fatal infarct.", correct: false },
+            { text: "B) For every 1-point increase in initial NIHSS score, the patient is expected to develop 3.65 mL more dead brain tissue on average.", correct: true },
+            { text: "C) The model has an accuracy of 3.65 mL.", correct: false },
+            { text: "D) The correlation between NIHSS and infarct volume is 3.65.", correct: false }
+          ],
+          `
+            <div class="readout" style="background:#eafaf1; border-color:#27ae60;">
+              <strong>Correct! $\\beta_1$ is the expected change in $Y$ per 1-unit increase in $X$.</strong>
+              <p style="margin-top:6px; font-size:0.9rem;">
+                The slope $\\beta_1$ translates the abstract scale of our predictor into the physical clinical units of our outcome: each additional point of clinical neurological deficit on arrival corresponds to an average of <strong>3.65 mL larger infarct volume</strong>.
+              </p>
+            </div>
+          `
+        )
+      },
+      {
+        label: "3. Visualizing Residuals: Dots Before Lines",
+        html: `
+          <p>In the interactive lab on the right, each dot represents one patient's actual measurements. The horizontal axis ($X$) is their admission NIHSS score, and the vertical axis ($Y$) is their observed infarct volume in mL.</p>
+          <p>Notice that no single straight line can pass through every patient dot. The vertical distance between where a patient dot sits and where the line predicts they should be is called the <strong>Residual ($\\varepsilon$)</strong>:</p>
+          <div class="metric-grid">
+            <div class="metric">
+              <span>Positive Residual ($y > \\hat{y}$)</span>
+              <b>Under-prediction</b>
+              <p class="subtle">Patient dot is ABOVE line. Actual damage was greater than expected.</p>
+            </div>
+            <div class="metric">
+              <span>Negative Residual ($y < \\hat{y}$)</span>
+              <b>Over-prediction</b>
+              <p class="subtle">Patient dot is BELOW line. Actual damage was less than expected.</p>
+            </div>
+          </div>
+        `
+      },
+      {
+        label: "4. The Mathematical Formulation & Symbol Breakdown",
         html: `
           <div class="formula-card">
-            <div class="formula-card__caption">Core Linear Prediction Equation</div>
+            <div class="formula-card__caption">Univariable Linear Regression Equation</div>
             <div class="formula-card__equation">
-              $$\\text{FIV} = 60.73 + 0.959 \\times \\text{Core} - 8.69 \\times \\text{CVO} + \\varepsilon$$
+              $$Y = \\beta_0 + \\beta_1 X + \\varepsilon$$
             </div>
             <div class="formula-card__caption">Term-by-Term Clinical Breakdown</div>
             <div class="terms-grid">
-              <div class="term-item"><code>$\\text{FIV}$</code> <strong>Outcome:</strong> Final Infarct Volume (in mL) measured on follow-up imaging.</div>
-              <div class="term-item"><code>$60.73$</code> <strong>Intercept ($\\beta_0$):</strong> Baseline expected infarct volume when $\\text{core} = 0$ and $\\text{CVO} = 0$.</div>
-              <div class="term-item"><code>$+0.959 \\times \\text{Core}$</code> <strong>Core Effect ($\\beta_1$):</strong> Each 1 mL of baseline CTP ischemic core increases final infarct volume by 0.959 mL.</div>
-              <div class="term-item"><code>$-8.69 \\times \\text{CVO}$</code> <strong>Venous Buffer ($\\beta_2$):</strong> Each 1-point increase in Cortical Venous Outflow (0–6) spares 8.69 mL of brain tissue.</div>
-              <div class="term-item"><code>$\\varepsilon$</code> <strong>Residual Error:</strong> Unmodeled patient variation (collateral status, recanalization timing).</div>
+              <div class="term-item"><code>$Y$</code> <strong>Outcome Target:</strong> The true observed Final Infarct Volume in mL.</div>
+              <div class="term-item"><code>$\\beta_0$</code> <strong>Intercept:</strong> The baseline predicted lesion volume if a patient arrived with $\\text{NIHSS} = 0$.</div>
+              <div class="term-item"><code>$\\beta_1$</code> <strong>Slope:</strong> Expected increase in infarct volume (mL) per 1-point increase in NIHSS.</div>
+              <div class="term-item"><code>$X$</code> <strong>Candidate Predictor:</strong> The patient's admission NIHSS score (0–42).</div>
+              <div class="term-item"><code>$\\varepsilon$</code> <strong>Residual Error:</strong> The difference between observed and predicted ($y_i - \\hat{y}_i$).</div>
             </div>
           </div>
         `
       },
       {
-        label: "2. Patient Walkthrough: Patient A vs. Patient B",
-        html: `
-          <p>Let's calculate two patients arriving at the emergency department with the <em>exact same</em> ischemic core volume of 30 mL:</p>
-          <div class="metric-grid">
-            <div class="metric">
-              <span>Patient A (Poor CVO = 2)</span>
-              <b>72.1 mL FIV</b>
-              <p class="subtle">60.73 + 0.959(30) - 8.69(2) = 72.12 mL</p>
-            </div>
-            <div class="metric">
-              <span>Patient B (Good CVO = 6)</span>
-              <b>37.4 mL FIV</b>
-              <p class="subtle">60.73 + 0.959(30) - 8.69(6) = 37.36 mL</p>
-            </div>
-          </div>
-          <p><strong>Clinical Insight:</strong> Despite having identical 30 mL core lesions on initial perfusion imaging, Patient B preserves <strong>34.7 mL of viable brain tissue</strong> purely due to robust venous outflow.</p>
-        `
+        label: "5. Python & statsmodels: Line-by-Line Code",
+        html: renderTokenCodeBlock(
+          "Fitting Linear Regression with statsmodels",
+          "Click any token to inspect its purpose",
+          [
+            {
+              tokens: [
+                { text: "import", type: "keyword", desc: "Imports the statistical modeling toolkit." },
+                { text: "statsmodels.api", type: "ident", desc: "Python library designed for rigorous biostatistical regression modeling and hypothesis testing." },
+                { text: "as", type: "keyword", desc: "Alias keyword." },
+                { text: "sm", type: "ident", desc: "Universal nickname for statsmodels." }
+              ]
+            },
+            {
+              tokens: [
+                { text: "X", type: "ident", desc: "The matrix of predictors containing admission NIHSS values." },
+                { text: "=", type: "keyword", desc: "Assignment." },
+                { text: "sm.add_constant", type: "func", desc: "Adds a column of 1s to estimate the intercept beta_0 (baseline risk when X=0)." },
+                { text: "(df['nihss'])", type: "string", desc: "The predictor column." }
+              ]
+            },
+            {
+              tokens: [
+                { text: "model", type: "ident", desc: "The fitted Ordinary Least Squares regression model object." },
+                { text: "=", type: "keyword", desc: "Assignment." },
+                { text: "sm.OLS", type: "func", desc: "Ordinary Least Squares: chooses the slope and intercept that minimize the sum of squared vertical residuals." },
+                { text: "(df['infarct_vol'], X).fit()", type: "func", desc: "Supplies the continuous outcome Y and solves for the optimal parameters." }
+              ]
+            }
+          ]
+        )
       },
       {
-        label: "3. The 5 Core Regression Assumptions",
-        html: `
-          <p>Before trusting linear regression predictions in clinical research, verify the 5 diagnostic assumptions:</p>
-          <div class="assumption-grid">
-            <div class="assumption-card">
-              <h5>1. Linearity</h5>
-              <p><span class="good">Expected:</span> Residuals scatter evenly above and below zero across fitted values.<br><span class="bad">Violation:</span> U-shaped curve indicates non-linear core thresholds (requires restricted cubic splines).</p>
-            </div>
-            <div class="assumption-card">
-              <h5>2. Independence</h5>
-              <p><span class="good">Expected:</span> Each row is an independent stroke patient.<br><span class="bad">Violation:</span> Multiple scans from the same patient or hospital clustering without mixed models.</p>
-            </div>
-            <div class="assumption-card">
-              <h5>3. Homoscedasticity</h5>
-              <p><span class="good">Expected:</span> Constant error variance across all lesion sizes.<br><span class="bad">Violation:</span> Funnel shape! Prediction errors expand dramatically for massive ischemic cores.</p>
-            </div>
-            <div class="assumption-card">
-              <h5>4. Residual Normality</h5>
-              <p><span class="good">Expected:</span> Bell-shaped distribution around 0 on Q-Q plots.<br><span class="bad">Violation:</span> Severe skewness inflates type I error for coefficient p-values.</p>
-            </div>
-          </div>
-          <div class="assumption-card" style="margin-top:10px;">
-            <h5>5. Outliers and Influential Points</h5>
-            <p><span class="good">Expected:</span> No single patient pulls the regression slope like a seesaw.<br><span class="bad">Violation:</span> High leverage cases (Cook's distance > 4/n). Always report sensitivity analyses with and without extreme outliers.</p>
-          </div>
-        `
+        label: "6. Common Pitfall: Prediction Does Not Prove Causation",
+        html: renderCommonTrapCard(
+          "Treating Predictive Coefficients as Causal Targets",
+          "Assuming that artificially reducing a patient's NIHSS with medication will automatically shrink their infarct volume by 3.65 mL per point.",
+          "Prediction identifies mathematical correlation to forecast outcomes. Both NIHSS and tissue death are caused by acute arterial occlusion. Changing X does not mechanically change Y without causal counterfactual evidence (Lesson 4)."
+        )
       },
       {
-        label: "4. Presentation Gold: What to Say on Rounds",
-        html: `
-          <div class="presentation-gold">
-            <h4>💡 Presentation Gold: The One Sentence to Memorize</h4>
-            <p>"Holding baseline ischemic core volume constant, each 1-point increase in cortical venous outflow score is associated with an 8.69 mL reduction in final infarct volume, demonstrating that venous drainage acts as an independent biological buffer against lesion expansion."</p>
-          </div>
-        `
-      },
-      {
-        label: "5. Check Your Clinical Understanding",
+        label: "7. Check Your Clinical Understanding",
         html: `
           <div class="quiz-box">
             <h4>🧠 Clinical Intuition Quiz</h4>
-            <p>A patient presents with an ischemic core of 40 mL and a CVO score of 5. What is their predicted Final Infarct Volume using the model equation?</p>
+            <p>If a model has intercept $\\beta_0 = 10\\text{ mL}$ and slope $\\beta_1 = 3.5\\text{ mL/point}$, what is the predicted infarct volume for a patient arriving with $\\text{NIHSS} = 12$?</p>
             <div class="quiz-options">
-              <button class="quiz-opt" data-correct="false">A) 99.1 mL</button>
-              <button class="quiz-opt" data-correct="true">B) 55.6 mL (Correct! 60.73 + 0.959(40) - 8.69(5) = 55.64 mL)</button>
-              <button class="quiz-opt" data-correct="false">C) 14.3 mL</button>
-              <button class="quiz-opt" data-correct="false">D) 120.5 mL</button>
+              <button class="quiz-opt" data-correct="false">A) 42.0 mL</button>
+              <button class="quiz-opt" data-correct="true">B) 52.0 mL (10 + 3.5 × 12 = 10 + 42 = 52 mL)</button>
+              <button class="quiz-opt" data-correct="false">C) 35.0 mL</button>
+              <button class="quiz-opt" data-correct="false">D) 120.0 mL</button>
             </div>
             <div class="quiz-explanation">
-              <strong>Explanation:</strong> Plug into the formula: 60.73 + 0.959(40) - 8.69(5) = 60.73 + 38.36 - 43.45 = <strong>55.64 mL</strong>. Notice that venous outflow buffered away over 43 mL of potential tissue loss!
+              <strong>Explanation:</strong> Predicted $Y = \\beta_0 + \\beta_1 X = 10 + (3.5 \\times 12) = 10 + 42 = 52.0\\text{ mL}$.
             </div>
           </div>
+          ${renderNarrativeBridge(
+            "metrics",
+            3,
+            "Regression Metrics",
+            "We now have a line and predictions for each patient. But every prediction is slightly off (the residual error bars). How do we summarize these errors across hundreds of patients to tell if our model is good or bad?"
+          )}
         `
       }
     ],
@@ -300,91 +542,105 @@ print(df.isna().sum())</code></pre>
   metrics: {
     eyebrow: "Module 1 · Lesson 3 of 24",
     h1: "Regression Metrics: Quantifying Prediction Errors",
-    lead: "How good is a model? A single number is never enough. We evaluate R², MAE, RMSE, and Mean Signed Error to understand accuracy and directional bias.",
+    lead: "How good is a model? A single summary score is never enough. We evaluate MAE, RMSE, Mean Signed Error, and R² to measure both error magnitude and directional bias.",
     analogy: {
-      title: "The Weather Forecast Analogy",
-      text: "If a weather forecaster predicts 70°F and it turns out to be 74°F, the error is +4°F. If tomorrow they predict 60°F and it is 56°F, the error is -4°F. Their average signed error is 0°F (unbiased!), but they missed both days by 4°F (Mean Absolute Error = 4°F). If missing by 10°F ruins a wedding, we penalize large errors heavily using Root Mean Squared Error (RMSE)."
+      title: "The Weather Forecaster's Dilemma",
+      text: "If a meteorologist predicts 70°F and it turns out to be 74°F, their error is +4°F. Tomorrow they predict 60°F and it is 56°F (error: -4°F). Their average signed error is 0°F (perfect balance!), but they were wrong by 4°F both days. If missing by 10°F ruins an outdoor wedding, we heavily penalize large misses using Root Mean Squared Error (RMSE)."
     },
     sections: [
       {
-        label: "1. The Four Continuous Metrics in the Stroke Paper",
+        label: "1. The Residuals: The Foundation of All Metrics",
         html: `
-          <p>The continuous calibration and dynamic updating framework evaluated models using four complementary metrics:</p>
-          <div class="formula-card">
-            <div class="formula-card__caption">Continuous Error & Fit Formulations</div>
-            <div class="formula-card__equation">
-              $$\\text{MAE} = \\frac{1}{n}\\sum_{i=1}^n |y_i - \\hat{y}_i| \\qquad \\text{RMSE} = \\sqrt{\\frac{1}{n}\\sum_{i=1}^n (y_i - \\hat{y}_i)^2} \\qquad R^2 = 1 - \\frac{\\sum_{i=1}^n (y_i - \\hat{y}_i)^2}{\\sum_{i=1}^n (y_i - \\bar{y})^2}$$
-            </div>
-            <div class="formula-card__caption">Penalty Mechanism & Clinical Behavior</div>
-            <div class="terms-grid">
-              <div class="term-item"><code>$y_i - \\hat{y}_i$</code> <strong>Residual Error:</strong> True observed lesion volume minus model predicted volume.</div>
-              <div class="term-item"><code>$\\text{MAE}$</code> <strong>Linear Penalty:</strong> Average magnitude of clinical misses in original physical units (mm³ or mL).</div>
-              <div class="term-item"><code>$\\text{RMSE}$</code> <strong>Quadratic Penalty:</strong> Squares errors before rooting; heavily penalizes catastrophic misses.</div>
-              <div class="term-item"><code>$R^2$</code> <strong>Explained Variance:</strong> Proportion of variance explained compared to a naive model predicting cohort mean $\\bar{y}$.</div>
-            </div>
+          <p>Every single regression evaluation metric originates from one physical quantity: the <strong>residual</strong> (observed outcome minus model prediction):</p>
+          <div class="formula">
+            $$\\text{Residual}_i = y_i - \\hat{y}_i = \\text{Observed Infarct Volume} - \\text{Predicted Infarct Volume}$$
           </div>
-          <div class="metric-grid">
-            <div class="metric">
-              <span>Mean Absolute Error (MAE)</span>
-              <b>20,021 mm³</b>
-              <p class="subtle">Average absolute difference between predicted and actual lesion volume (~20 mL).</p>
-            </div>
-            <div class="metric">
-              <span>Root Mean Squared Error (RMSE)</span>
-              <b>50,093 mm³</b>
-              <p class="subtle">Quadratic penalty that exposes catastrophic outliers (~50 mL).</p>
-            </div>
-            <div class="metric">
-              <span>Mean Signed Error</span>
-              <b>+12,900 mm³</b>
-              <p class="subtle">Positive value indicates the model systematically over-predicts infarct volume by ~13 mL.</p>
-            </div>
-            <div class="metric">
-              <span>Cross-Validated R²</span>
-              <b>0.077 (Out-of-Bag)</b>
-              <p class="subtle">Apparent R² was 0.335! Internal CV revealed true generalizability was much lower.</p>
-            </div>
-          </div>
-        `
-      },
-      {
-        label: "2. Why Cross-Validated R² Can Be Negative",
-        html: `
           <div class="patient-calc">
-            <h4>The Great $R^2$ Shock:</h4>
-            <p>In standard textbook training sets, $R^2$ is bounded between 0 and 1. But on held-out test folds, <strong>cross-validated $R^2$ can easily be negative</strong>!</p>
-            <div class="formula">
-              $$R^2 = 1 - \\frac{\\text{SS}_{\\text{res}}}{\\text{SS}_{\\text{tot}}} = 1 - \\frac{\\sum_{i=1}^n (y_i - \\hat{y}_i)^2}{\\sum_{i=1}^n (y_i - \\bar{y})^2}$$
+            <h4>Connecting Residuals to the Four Core Metrics:</h4>
+            <ul>
+              <li><strong>Take the absolute value of each error:</strong> $\\to$ <strong>Mean Absolute Error (MAE)</strong></li>
+              <li><strong>Square each error to punish huge mistakes:</strong> $\\to$ <strong>Root Mean Squared Error (RMSE)</strong></li>
+              <li><strong>Average the signed errors without absolute values:</strong> $\\to$ <strong>Mean Signed Error (Bias)</strong></li>
+              <li><strong>Compare squared errors against a naive baseline:</strong> $\\to$ <strong>Coefficient of Determination ($R^2$)</strong></li>
+            </ul>
+          </div>
+        `
+      },
+      {
+        label: "2. Guess Before Reveal: The Cancellation Trap",
+        html: renderPredictBeforeReveal(
+          "metric-cancel",
+          "Statistical Traps Check",
+          "Patient A has prediction error +40 mL (model underpredicted). Patient B has prediction error -40 mL (model overpredicted). If we calculate the simple average error (+40 - 40)/2 = 0 mL, does a zero average mean our predictions are flawless?",
+          [
+            { text: "A) Yes, zero error means the model is perfectly accurate.", correct: false },
+            { text: "B) No, positive and negative errors canceled each other out, hiding serious individual patient misses.", correct: true },
+            { text: "C) Yes, because the variance is zero.", correct: false }
+          ],
+          `
+            <div class="readout" style="background:#fbeee6; border-color:#e06c3f;">
+              <strong>Correct! Errors cancel in Mean Signed Error.</strong>
+              <p style="margin-top:6px; font-size:0.9rem;">
+                Mean Signed Error only measures <strong>systematic directional bias</strong>. A model can be wrong by 50 mL on every single patient and still report a Mean Signed Error of 0 mL if half the errors are high and half are low! That is why we must also report <strong>MAE</strong>.
+              </p>
             </div>
-            <p>If your model's predictions $\\\\hat{y}$ on new patients perform <em>worse</em> than simply guessing the dataset average $\\\\bar{y}$ for every patient, then $SS_{\\\\text{residual}} > SS_{\\\\text{total}}$, driving $R^2 < 0$. A negative $R^2$ is a mathematical alarm that your model has overfitted and is harming predictive accuracy.</p>
-          </div>
-        `
+          `
+        )
       },
       {
-        label: "3. Presentation Gold: What to Say on Rounds",
+        label: "3. The Mathematical Formulations & Penalty Mechanisms",
         html: `
-          <div class="presentation-gold">
-            <h4>💡 Presentation Gold: The One Sentence to Memorize</h4>
-            <p>"While MAE measures typical bedside prediction accuracy, RMSE reveals vulnerability to massive clinical misses, Mean Signed Error exposes systematic volume overestimation, and out-of-bag R² protects against the dangerous optimism of apparent performance."</p>
+          <div class="formula-card">
+            <div class="formula-card__caption">Continuous Error Formulations</div>
+            <div class="formula-card__equation">
+              $$\\text{MAE} = \\frac{1}{n}\\sum_{i=1}^n |y_i - \\hat{y}_i| \qquad \\text{RMSE} = \\sqrt{\\frac{1}{n}\\sum_{i=1}^n (y_i - \\hat{y}_i)^2} \qquad R^2 = 1 - \\frac{\\sum (y_i - \\hat{y}_i)^2}{\\sum (y_i - \\bar{y})^2}$$
+            </div>
+            <div class="formula-card__caption">Clinical Penalty Behavior</div>
+            <div class="terms-grid">
+              <div class="term-item"><code>$\\text{MAE}$</code> <strong>Linear Penalty:</strong> Average distance between predicted and true infarct volume in native clinical units (mL).</div>
+              <div class="term-item"><code>$\\text{RMSE}$</code> <strong>Quadratic Penalty:</strong> Squaring gives disproportionate weight to massive mistakes (e.g. missing an infarct by 80 mL).</div>
+              <div class="term-item"><code>$\\text{Signed Error}$</code> <strong>Directional Bias:</strong> Tells you if your model is systematically overly optimistic or overly pessimistic.</div>
+              <div class="term-item"><code>$R^2$</code> <strong>Explained Variance:</strong> How much variance in infarct volume the model captures compared to just guessing the cohort average.</div>
+            </div>
           </div>
         `
       },
       {
-        label: "4. Check Your Clinical Understanding",
+        label: "4. Why Do I Care? Clinical Interpretation of MAE = 18 mL",
+        html: renderWhyCareBox(
+          "How to Translate Statistical Metrics at the Bedside",
+          "If your model reports an <strong>MAE of 18.2 mL</strong> on an external validation cohort, you can tell the stroke team on rounds: <em>'On average, our algorithm's predicted infarct volume will be within roughly 18 mL of the true final lesion volume on follow-up imaging, regardless of whether it over- or under-predicts.'</em>"
+        )
+      },
+      {
+        label: "5. Common Pitfall: $R^2 = 0.30$ Does NOT Mean 30% Accurate",
+        html: renderCommonTrapCard(
+          "Confusing R² with Clinical Accuracy",
+          "Reading a paper with R² = 0.30 and telling colleagues 'the prediction model is only 30% accurate, so it fails 70% of the time.'",
+          "R² is NOT a percentage of correct decisions! In complex biological diseases like acute stroke, an R² of 0.30 means 30% of the total variance in tissue death is captured by our triage variables. The remaining 70% is driven by unmeasured biological heterogeneity (collaterals, microvascular reperfusion)."
+        )
+      },
+      {
+        label: "6. Check Your Clinical Understanding",
         html: `
           <div class="quiz-box">
             <h4>🧠 Clinical Intuition Quiz</h4>
-            <p>A stroke infarct prediction model reports a Mean Signed Error of <strong>+18.4 mL</strong>. What does this mean for a clinician using the model at the bedside?</p>
+            <p>Model 1 and Model 2 have identical MAE (20 mL). However, Model 1 has an RMSE of 24 mL, while Model 2 has an RMSE of 52 mL. Which model is safer for clinical decision-making?</p>
             <div class="quiz-options">
-              <button class="quiz-opt" data-correct="false">A) The model has an error rate of 18.4%.</button>
-              <button class="quiz-opt" data-correct="true">B) The model systematically overestimates final infarct volume by an average of 18.4 mL.</button>
-              <button class="quiz-opt" data-correct="false">C) The model has an $R^2$ of 0.184.</button>
-              <button class="quiz-opt" data-correct="false">D) The model underestimates tissue loss.</button>
+              <button class="quiz-opt" data-correct="true">A) Model 1 (lower RMSE means it does not make rare catastrophic clinical errors).</button>
+              <button class="quiz-opt" data-correct="false">B) Model 2 (higher RMSE means it explains more variance).</button>
+              <button class="quiz-opt" data-correct="false">C) Both models are identical because their MAE is the same.</button>
             </div>
             <div class="quiz-explanation">
-              <strong>Explanation:</strong> Signed error preserves the direction: $\\text{Predicted} - \\text{Actual}$. A positive signed error (+18.4 mL) means predictions are systematically higher than reality, leading to overly pessimistic prognostication.
+              <strong>Explanation:</strong> Model 2 has severe outlier errors that were heavily penalized when squared into RMSE! In clinical stroke care, making occasional 100 mL prediction errors can lead to inappropriate triage or surgical interventions.
             </div>
           </div>
+          ${renderNarrativeBridge(
+            "causation",
+            4,
+            "Association, Prediction, Causation",
+            "We can now measure regression errors. But before we add more predictors to reduce these errors, we must confront the most dangerous clinical confusion in medical literature: Does a strong prediction model mean our predictor CAUSES the outcome?"
+          )}
         `
       }
     ],
@@ -1124,73 +1380,116 @@ print(df.isna().sum())</code></pre>
 
   validation: {
     eyebrow: "Module 4 · Lesson 13 of 24",
-    h1: "Apparent vs. Internal vs. External Validation",
-    lead: "A model always looks brilliant on the patients used to train it. The true test of a clinical prediction model is how well it performs on unseen patients.",
+    h1: "Repeated 5-Fold Cross-Validation: Preventing Data Leakage",
+    lead: "A model always looks brilliant on the patients used to train it. The true test of a clinical prediction model is evaluating predictions on patients it has never seen.",
     analogy: {
-      title: "The Rehearsed Practice Exam",
-      text: "If a medical student takes the exact same practice exam five times, they will score 100% (Apparent Performance). But their true clinical competence is revealed when facing a brand-new patient with atypical symptoms in a busy emergency room (External Validation)."
+      title: "The Medical Board Exam Analogy",
+      text: "If a medical student takes the exact same practice exam five times, they will score 100% (Apparent Memorization). But their true clinical competence is tested when facing brand-new questions on the actual board exam (Generalization). Training and testing on the same patients is pure memorization."
     },
     sections: [
       {
-        label: "1. The Three Tiers of Clinical Validation",
+        label: "1. The Clinical Problem: Overfitting & Memorization",
         html: `
+          <p>When you fit a model to 626 patients, the algorithm learns both true clinical signals <em>and random noise</em> unique to those specific patients. If you evaluate performance on those same 626 patients, you obtain <strong>Apparent Performance</strong>, which is dangerously optimistic.</p>
           <div class="metric-grid">
             <div class="metric">
-              <span>Tier 1: Apparent Performance</span>
-              <b>Optimistic / Biased</b>
-              <p class="subtle">Evaluated on the exact training dataset. Memorizes random cohort noise.</p>
+              <span>Apparent In-Sample $R^2$</span>
+              <b>0.335</b>
+              <p class="subtle">Evaluated on the exact training cohort. Overly optimistic due to memorizing noise.</p>
             </div>
             <div class="metric">
-              <span>Tier 2: Internal Validation</span>
-              <b>Optimism-Corrected</b>
-              <p class="subtle">Repeated cross-validation or bootstrap resampling within the same target population.</p>
-            </div>
-            <div class="metric">
-              <span>Tier 3: External Validation</span>
-              <b>Generalizability / Transportability</b>
-              <p class="subtle">Evaluated in a completely different hospital system, geographic region, or era.</p>
+              <span>Out-of-Fold Cross-Validated $R^2$</span>
+              <b>0.077</b>
+              <p class="subtle">Evaluated strictly on held-out patients. The honest test of generalization!</p>
             </div>
           </div>
         `
       },
       {
-        label: "2. The Flaw of Split-Sample (70/30) in Small Medical Cohorts",
+        label: "2. Guess Before Reveal: The Fate of Patient A",
+        html: renderPredictBeforeReveal(
+          "cv-leak",
+          "Cross-Validation Reasoning",
+          "In 5-fold cross-validation, if Patient A is placed into Fold 1 (the test fold), how is the model that generates Patient A's prediction created?",
+          [
+            { text: "A) The model is fitted using all 5 folds together (Patients A through Z).", correct: false },
+            { text: "B) The model is fitted using Folds 2, 3, 4, and 5 only. It has NEVER seen Patient A.", correct: true },
+            { text: "C) Patient A is used to train the model, then tested on Folds 2–5.", correct: false }
+          ],
+          `
+            <div class="readout" style="background:#eafaf1; border-color:#27ae60;">
+              <strong>Correct! That is an Out-of-Fold Prediction.</strong>
+              <p style="margin-top:6px; font-size:0.9rem;">
+                The core milestone of cross-validation is that <strong>the prediction used to evaluate Patient A comes from a model that has never seen Patient A</strong>. When this process is repeated across all 5 folds, every single patient receives an honest out-of-fold prediction.
+              </p>
+            </div>
+          `
+        )
+      },
+      {
+        label: "3. Step Through 5-Fold Cross-Validation",
         html: `
+          <div class="cv-stepper" id="cv-stepper-widget">
+            <div class="cv-tabs" role="tablist">
+              <button class="cv-tab-btn active" data-fold="1">Fold 1 as Test</button>
+              <button class="cv-tab-btn" data-fold="2">Fold 2 as Test</button>
+              <button class="cv-tab-btn" data-fold="3">Fold 3 as Test</button>
+              <button class="cv-tab-btn" data-fold="4">Fold 4 as Test</button>
+              <button class="cv-tab-btn" data-fold="5">Fold 5 as Test</button>
+            </div>
+            <div class="cv-patient-grid" id="cv-patient-cards"></div>
+            <div class="cv-status-msg" id="cv-status-msg">
+              <strong>Round 1:</strong> Fold 1 (red) is held out as the <strong>Test Set</strong>. Folds 2–5 (blue) are pooled to train the regression model.
+            </div>
+          </div>
+        `
+      },
+      {
+        label: "4. Why Repeat Cross-Validation 20 Times?",
+        html: `
+          <p>In smaller clinical cohorts (e.g. 150 patients), how you randomly split patients into 5 folds matters. A single lucky partition can produce a high test score, while an unlucky partition produces a low score.</p>
           <div class="patient-calc">
-            <h4>Why Split-Sample Validation is Inefficient for N < 2,000:</h4>
-            <ul>
-              <li><strong>High Sampling Variance:</strong> In a cohort of 300 stroke patients, a 30% test split contains only 90 patients (perhaps 20 disability events!). A couple of unusual patients will cause massive wild swings in estimated AUC.</li>
-              <li><strong>Wasted Sample Size:</strong> Discarding 30% of your data during model development reduces the effective Events Per Variable (EPV), actively causing the model to overfit!</li>
-              <li><strong>Modern Standard:</strong> Use <strong>repeated k-fold cross-validation (e.g., 20 repeats of 5-fold CV)</strong> or <strong>bootstrap optimism correction</strong>, using 100% of available patients for both development and validation.</li>
-            </ul>
+            <h4>The Solution: Repeated $k$-Fold Cross-Validation</h4>
+            <p>We reshuffle the patients with a new random seed and run 5-fold cross-validation again. Repeating this <strong>20 times (yielding 100 trained models)</strong> averages out partition variance and provides stable, reproducible performance metrics.</p>
           </div>
         `
       },
       {
-        label: "3. Presentation Gold: What to Say on Rounds",
-        html: `
-          <div class="presentation-gold">
-            <h4>💡 Presentation Gold: The One Sentence to Memorize</h4>
-            <p>"Apparent performance reflects how well a model memorized past patients; internal bootstrap validation estimates optimism shrinkage; and external geographic validation proves whether the model survives the clinical realities of a different hospital."</p>
-          </div>
-        `
+        label: "5. Why Do I Care? Preventing Disastrous Bedside Deployment",
+        html: renderWhyCareBox(
+          "Why Optimism Shrinkage Protects Real Patients",
+          "If a hospital deploys a model that reported an apparent $R^2 = 0.335$, clinicians will expect accurate forecasts. But when applied to tomorrow's patients, the true performance is $R^2 = 0.077$. Reporting out-of-fold cross-validated metrics prevents clinicians from trusting an overfitted algorithm."
+        )
       },
       {
-        label: "4. Check Your Clinical Understanding",
+        label: "6. Common Pitfall: Preprocessing Before Splitting (Data Leakage)",
+        html: renderCommonTrapCard(
+          "Imputing or Normalizing Across the Whole Cohort First",
+          "Calculating mean imputation or feature scaling on all 626 patients before splitting into training and test folds.",
+          "This leaks information from the test fold into the training fold! Any imputation, scaling, or variable selection MUST be fitted strictly inside the training fold, then applied to the test fold."
+        )
+      },
+      {
+        label: "7. Check Your Clinical Understanding",
         html: `
           <div class="quiz-box">
             <h4>🧠 Clinical Intuition Quiz</h4>
-            <p>A clinical modeling study reports an apparent $R^2$ of <strong>0.335</strong> on the development cohort, but repeated 5-fold cross-validation reveals an out-of-fold $R^2$ of <strong>0.077</strong>. Which metric reflects the model's true predictive power on future patients?</p>
+            <p>A machine learning stroke paper reports: <em>'We achieved 98% accuracy on our full dataset of 120 patients.'</em> What question should you immediately ask the authors?</p>
             <div class="quiz-options">
-              <button class="quiz-opt" data-correct="false">A) 0.335 (because it used the full sample)</button>
-              <button class="quiz-opt" data-correct="true">B) 0.077 (cross-validated performance honestly reflects generalization to unseen patients)</button>
-              <button class="quiz-opt" data-correct="false">C) The average of the two: (0.335 + 0.077) / 2</button>
-              <button class="quiz-opt" data-correct="false">D) Neither</button>
+              <button class="quiz-opt" data-correct="false">A) What programming language did you use?</button>
+              <button class="quiz-opt" data-correct="true">B) Is that 98% apparent in-sample accuracy, or was it evaluated using out-of-fold cross-validation on unseen patients?</button>
+              <button class="quiz-opt" data-correct="false">C) Can we increase the number of predictors?</button>
             </div>
             <div class="quiz-explanation">
-              <strong>Explanation:</strong> This is the exact finding from the continuous calibration and dynamic updating framework! The apparent $R^2 = 0.335$ was inflated by overfitting to training noise. The out-of-fold $R^2 = 0.077$ represents true generalizability.
+              <strong>Explanation:</strong> High apparent performance on a small dataset (120 patients) almost certainly reflects severe overfitting. Without cross-validation or bootstrap internal validation, in-sample performance is clinically meaningless.
             </div>
           </div>
+          ${renderNarrativeBridge(
+            "bootstrap",
+            14,
+            "Bootstrap & Out-of-Bag Evaluation",
+            "Cross-validation splits patients into folds. But what if our cohort is too small to even spare 20% for testing? Enter Bradley Efron's bootstrap algorithm: resampling patients with replacement."
+          )}
         `
       }
     ],
@@ -1973,42 +2272,92 @@ function renderCsvLab(container) {
   container.innerHTML = `
     <div class="lab-top">
       <span>Interactive Cohort Explorer</span>
-      <span class="demo-label">Simulated Acute Stroke Cohort (n=6 preview)</span>
+      <span class="demo-label">Acute Stroke Registry (n=6 preview)</span>
     </div>
     <div class="lab-body">
+      <div class="lab-actions" style="margin-bottom: 12px;">
+        <button id="btn-hl-predictors" class="button small">Highlight Predictors (X)</button>
+        <button id="btn-hl-outcome" class="outline small">Highlight Outcome (Y)</button>
+        <button id="btn-hl-missing" class="outline small">Show Missing Values</button>
+      </div>
       <div class="table-wrap">
-        <table class="data-table">
+        <table class="data-table" id="cohort-table">
           <thead>
             <tr>
               <th>Patient ID</th>
-              <th>Age (yr)</th>
-              <th>NIHSS (0-42)</th>
-              <th>Core Vol (mm³)</th>
-              <th>NWU (%)</th>
-              <th>Onset (hr)</th>
-              <th>90d mRS (0-6)</th>
+              <th data-col="pred">Age (yr)</th>
+              <th data-col="pred">NIHSS (0-42)</th>
+              <th data-col="out">Infarct Vol (mL)</th>
+              <th data-col="pred">NWU (%)</th>
+              <th data-col="pred">Onset (hr)</th>
+              <th data-col="out">90d mRS (0-6)</th>
             </tr>
           </thead>
           <tbody>
-            ${sampleData.map(r => `
-              <tr>
+            ${sampleData.map((r, idx) => `
+              <tr data-patient-idx="${idx}" style="cursor: pointer;">
                 <td><strong>${r.id}</strong></td>
                 <td>${r.age}</td>
                 <td>${r.nihss}</td>
-                <td class="${r.vol === null ? 'missing' : ''}">${r.vol !== null ? r.vol : 'MISSING (NA)'}</td>
+                <td class="${r.vol === null ? 'missing' : ''}">${r.vol !== null ? r.vol : 'MISSING'}</td>
                 <td>${r.nwu}%</td>
-                <td class="${r.time === null ? 'missing' : ''}">${r.time !== null ? r.time + 'h' : 'MISSING (NA)'}</td>
+                <td class="${r.time === null ? 'missing' : ''}">${r.time !== null ? r.time + 'h' : 'MISSING'}</td>
                 <td><strong>mRS ${r.mrs90}</strong></td>
               </tr>
             `).join('')}
           </tbody>
         </table>
       </div>
-      <div class="readout" style="margin-top: 16px;">
-        Found <strong>2 missing entries</strong> highlighted in orange. Notice Patient P-104 is missing Core Volume and P-105 is missing Onset Time. In Module 3, we will see why dropping these rows is a catastrophic clinical mistake.
+      <div class="readout" id="table-inspector" style="margin-top: 14px;">
+        💡 <em>Click any patient row above to inspect their clinical triage profile. Notice orange cells indicating missing values.</em>
       </div>
     </div>
   `;
+
+  const rows = container.querySelectorAll("#cohort-table tbody tr");
+  const inspector = container.querySelector("#table-inspector");
+  rows.forEach(r => {
+    r.addEventListener("click", () => {
+      rows.forEach(x => x.style.background = "");
+      r.style.background = "#fbeee6";
+      const idx = parseInt(r.getAttribute("data-patient-idx"), 10);
+      const p = sampleData[idx];
+      if (inspector) {
+        inspector.innerHTML = `
+          <strong>Selected Encounter: Patient ${p.id}</strong><br>
+          • <strong>Triage Presentation:</strong> Age ${p.age} years with admission NIHSS ${p.nihss}.<br>
+          • <strong>Tissue Status:</strong> ${p.vol !== null ? p.vol + ' mL infarct' : '<span style="color:#bd4d24;font-weight:700;">Missing infarct volume</span>'} and Net Water Uptake of ${p.nwu}%.<br>
+          • <strong>90-Day Outcome:</strong> Modified Rankin Scale mRS ${p.mrs90} (${p.mrs90 <= 2 ? 'Functional Independence' : 'Disability/Mortality'}).
+        `;
+      }
+    });
+  });
+
+  const btnPred = container.querySelector("#btn-hl-predictors");
+  const btnOut = container.querySelector("#btn-hl-outcome");
+  const btnMiss = container.querySelector("#btn-hl-missing");
+
+  if (btnPred) {
+    btnPred.addEventListener("click", () => {
+      container.querySelectorAll("th, td").forEach(el => el.style.background = "");
+      container.querySelectorAll('[data-col="pred"]').forEach(el => el.style.background = "#ebf5fb");
+      if (inspector) inspector.innerHTML = `<strong>Candidate Predictors (X):</strong> Pre-treatment clinical features available at the moment of patient triage (Age, NIHSS, NWU, Onset).`;
+    });
+  }
+  if (btnOut) {
+    btnOut.addEventListener("click", () => {
+      container.querySelectorAll("th, td").forEach(el => el.style.background = "");
+      container.querySelectorAll('[data-col="out"]').forEach(el => el.style.background = "#fadbd8");
+      if (inspector) inspector.innerHTML = `<strong>Clinical Outcomes (Y):</strong> The future endpoints we want to forecast (Final Infarct Volume or 90-day mRS).`;
+    });
+  }
+  if (btnMiss) {
+    btnMiss.addEventListener("click", () => {
+      container.querySelectorAll("th, td").forEach(el => el.style.background = "");
+      container.querySelectorAll(".missing").forEach(el => el.style.background = "#f5b7b1");
+      if (inspector) inspector.innerHTML = `<strong>Missing Data Detected:</strong> P-104 is missing Infarct Volume; P-105 is missing Onset Time. In Lesson 8, we will learn why dropping these rows is a catastrophic mistake.`;
+    });
+  }
 }
 
 function renderLinearLab(container) {
@@ -2018,24 +2367,27 @@ function renderLinearLab(container) {
   container.innerHTML = `
     <div class="lab-top">
       <span>Interactive OLS Regression Lab</span>
-      <span class="demo-label">NIHSS ~ Infarct Volume</span>
+      <span class="demo-label">NIHSS (X) ~ Infarct Volume (Y)</span>
     </div>
     <div class="lab-body">
       <div id="linear-chart-wrap"></div>
       <div class="controls">
         <div class="range-label">
-          <span>Slope Adjustment (β₁):</span>
+          <span>Slope Adjustment (β₁ mL/point):</span>
           <output id="slope-val">${model.b.toFixed(2)}</output>
         </div>
         <input type="range" id="slope-slider" min="1" max="7" step="0.1" value="${model.b.toFixed(1)}">
         <div class="lab-actions">
-          <button id="reset-ols" class="outline small">Reset to Best OLS Fit</button>
+          <button id="reset-ols" class="outline small">Reset to Optimal OLS Fit</button>
           <button id="toggle-residuals" class="button small">Toggle Residual Error Bars</button>
         </div>
       </div>
       <div class="metric-grid">
         <div class="metric"><span>Current R² Score</span><b id="linear-r2">-</b></div>
         <div class="metric"><span>Mean Absolute Error (MAE)</span><b id="linear-mae">-</b></div>
+      </div>
+      <div class="readout" id="linear-inspector">
+        💡 <em>Adjust the slope slider to tilt the line. Notice how vertical dashed error bars (residuals) lengthen when you move away from the optimal OLS fit.</em>
       </div>
     </div>
   `;
@@ -2051,11 +2403,11 @@ function renderLinearLab(container) {
     const r2El = container.querySelector("#linear-r2");
     const maeEl = container.querySelector("#linear-mae");
     if (r2El) r2El.textContent = isNaN(m.r2) ? "0.000" : m.r2.toFixed(3);
-    if (maeEl) maeEl.textContent = m.mae.toFixed(1) + " mm³";
+    if (maeEl) maeEl.textContent = m.mae.toFixed(1) + " mL";
 
     const width = 580;
     const height = 280;
-    const pad = 35;
+    const pad = 45;
     const minX = 0, maxX = 28;
     const minY = 0, maxY = 120;
 
@@ -2074,27 +2426,44 @@ function renderLinearLab(container) {
         <!-- Axes -->
         <line class="axis" x1="${pad}" y1="${height - pad}" x2="${width - pad}" y2="${height - pad}" />
         <line class="axis" x1="${pad}" y1="${pad}" x2="${pad}" y2="${height - pad}" />
-        <!-- Axis labels -->
-        <text x="${width - pad - 20}" y="${height - pad + 20}">Volume</text>
-        <text x="${pad - 10}" y="${pad - 10}">NIHSS</text>
+        <!-- Axis labels (Correctly oriented: X = NIHSS, Y = Infarct Volume) -->
+        <text x="${width / 2}" y="${height - 10}" text-anchor="middle" font-size="12" fill="#666">Admission NIHSS Score (0–42, X)</text>
+        <text x="15" y="${height / 2}" text-anchor="middle" font-size="12" fill="#666" transform="rotate(-90, 15, ${height / 2})">Infarct Vol (mL, Y)</text>
     `;
 
     if (showResiduals) {
       pts.forEach((p, i) => {
         const predY = preds[i];
-        svg += `<line x1="${scaleX(p.x)}" y1="${scaleY(p.y)}" x2="${scaleX(p.x)}" y2="${scaleY(predY)}" stroke="#bd4d24" stroke-width="1.5" stroke-dasharray="3 3" />`;
+        svg += `<line x1="${scaleX(p.x)}" y1="${scaleY(p.y)}" x2="${scaleX(p.x)}" y2="${scaleY(predY)}" stroke="#bd4d24" stroke-width="1.8" stroke-dasharray="3 3" />`;
       });
     }
 
-    svg += `<line class="curve" x1="${scaleX(x1)}" y1="${scaleY(y1)}" x2="${scaleX(x2)}" y2="${scaleY(y2)}" />`;
+    svg += `<line class="curve" x1="${scaleX(x1)}" y1="${scaleY(y1)}" x2="${scaleX(x2)}" y2="${scaleY(y2)}" stroke="#252422" stroke-width="2.5" />`;
 
-    pts.forEach(p => {
-      svg += `<circle class="point" cx="${scaleX(p.x)}" cy="${scaleY(p.y)}" r="5" />`;
+    pts.forEach((p, i) => {
+      svg += `<circle class="point" data-pt-idx="${i}" cx="${scaleX(p.x)}" cy="${scaleY(p.y)}" r="6" style="cursor:pointer;" />`;
     });
 
     svg += `</svg>`;
     const wrap = container.querySelector("#linear-chart-wrap");
-    if (wrap) wrap.innerHTML = svg;
+    if (wrap) {
+      wrap.innerHTML = svg;
+      wrap.querySelectorAll(".point").forEach(circle => {
+        circle.addEventListener("click", () => {
+          const idx = parseInt(circle.getAttribute("data-pt-idx"), 10);
+          const p = pts[idx];
+          const predY = preds[idx];
+          const res = p.y - predY;
+          const insp = container.querySelector("#linear-inspector");
+          if (insp) {
+            insp.innerHTML = `
+              <strong>Patient Inspection:</strong> NIHSS = <strong>${p.x}</strong> | Observed Infarct = <strong>${p.y} mL</strong> | Predicted Infarct = <strong>${predY.toFixed(1)} mL</strong><br>
+              Residual error bar = <strong>${res >= 0 ? '+' : ''}${res.toFixed(1)} mL</strong> (${res >= 0 ? 'Model underpredicted damage' : 'Model overpredicted damage'}).
+            `;
+          }
+        });
+      });
+    }
   }
 
   const slider = container.querySelector("#slope-slider");
@@ -3683,6 +4052,145 @@ class App {
     `;
 
     this.contentEl.innerHTML = html;
+
+    
+    // Interactive Pedagogical Bindings
+    // 1. Guess Before Reveal Buttons
+    this.contentEl.querySelectorAll(".predict-opt").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const parent = btn.closest(".predict-reveal");
+        if (!parent) return;
+        const isCorrect = btn.getAttribute("data-correct") === "true";
+        parent.querySelectorAll(".predict-opt").forEach(b => {
+          b.disabled = true;
+          if (b === btn) {
+            b.classList.add("selected");
+            b.style.background = isCorrect ? "#eafaf1" : "#fdf2e9";
+            b.style.borderColor = isCorrect ? "#27ae60" : "#e67e22";
+          }
+        });
+        const reveal = parent.querySelector(".predict-reveal-content");
+        if (reveal) reveal.style.display = "block";
+      });
+    });
+
+    // 2. Token-by-Token Explainer Pills
+    this.contentEl.querySelectorAll(".token-pill").forEach(pill => {
+      const showExplainer = () => {
+        const explainerId = pill.getAttribute("data-explainer-id");
+        const container = pill.closest(".token-code-container");
+        if (!container || !explainerId) return;
+        container.querySelectorAll(".token-pill").forEach(p => p.classList.remove("active"));
+        pill.classList.add("active");
+        container.querySelectorAll(".token-explainer-item").forEach(item => item.classList.remove("active"));
+        const target = container.querySelector("#" + explainerId);
+        if (target) target.classList.add("active");
+      };
+      pill.addEventListener("click", showExplainer);
+      pill.addEventListener("mouseenter", showExplainer);
+    });
+
+    // 3. X vs Y Selector Pills
+    this.contentEl.querySelectorAll(".xy-pill").forEach(pill => {
+      pill.addEventListener("click", () => {
+        const selector = pill.closest(".xy-selector");
+        if (!selector) return;
+        const xyId = pill.getAttribute("data-xy-id");
+        const role = pill.getAttribute("data-target-role");
+
+        if (!pill.classList.contains("in-x") && !pill.classList.contains("in-y")) {
+          if (role === "x") {
+            pill.classList.add("in-x");
+          } else {
+            pill.classList.add("in-y");
+          }
+        } else if (pill.classList.contains("in-x")) {
+          pill.classList.remove("in-x");
+          pill.classList.add("in-y");
+        } else {
+          pill.classList.remove("in-y");
+        }
+
+        const boxX = selector.querySelector("#xy-items-x-" + xyId);
+        const boxY = selector.querySelector("#xy-items-y-" + xyId);
+        const feedback = selector.querySelector("#xy-feedback-" + xyId);
+        const xItems = selector.querySelectorAll(".xy-pill.in-x");
+        const yItems = selector.querySelectorAll(".xy-pill.in-y");
+
+        if (boxX) {
+          boxX.innerHTML = xItems.length
+            ? Array.from(xItems).map(p => `<span class="xy-pill in-x" style="cursor:default;">${p.getAttribute("data-var-name")}</span>`).join(" ")
+            : `<em class="subtle" style="font-size:0.8rem;">Click a variable above to assign it here...</em>`;
+        }
+        if (boxY) {
+          boxY.innerHTML = yItems.length
+            ? Array.from(yItems).map(p => `<span class="xy-pill in-y" style="cursor:default;">${p.getAttribute("data-var-name")}</span>`).join(" ")
+            : `<em class="subtle" style="font-size:0.8rem;">Click a variable above to assign it here...</em>`;
+        }
+
+        if (feedback) {
+          feedback.style.display = "block";
+          const isXCorrect = Array.from(xItems).every(p => p.getAttribute("data-target-role") === "x") && xItems.length > 0;
+          const isYCorrect = Array.from(yItems).every(p => p.getAttribute("data-target-role") === "y") && yItems.length === 1;
+          if (isXCorrect && isYCorrect) {
+            feedback.innerHTML = `<strong>✅ Perfect Clinical Classification!</strong> The baseline measurements (NIHSS, Age, Glucose) are pre-treatment Candidate Predictors ($X$). Final Infarct Volume is your clinical Outcome Target ($Y$).`;
+            feedback.style.background = "#eafaf1";
+            feedback.style.borderColor = "#27ae60";
+          } else {
+            feedback.innerHTML = `<em>Keep organizing: Predictors ($X$) must be available at admission; Outcome Target ($Y$) is the future event to predict.</em>`;
+            feedback.style.background = "var(--color-paper-dark)";
+            feedback.style.borderColor = "var(--color-rule)";
+          }
+        }
+      });
+    });
+
+    // 4. Cross-Validation Stepper
+    const cvStepper = this.contentEl.querySelector("#cv-stepper-widget");
+    if (cvStepper) {
+      const patients = [
+        { id: "P-101", fold: 1, nihss: 16, vol: 34.2 },
+        { id: "P-102", fold: 1, nihss: 8, vol: 12.0 },
+        { id: "P-103", fold: 2, nihss: 21, vol: 68.5 },
+        { id: "P-104", fold: 2, nihss: 14, vol: 41.0 },
+        { id: "P-105", fold: 3, nihss: 6, vol: 8.4 },
+        { id: "P-106", fold: 3, nihss: 19, vol: 54.1 },
+        { id: "P-107", fold: 4, nihss: 11, vol: 28.0 },
+        { id: "P-108", fold: 4, nihss: 15, vol: 45.3 },
+        { id: "P-109", fold: 5, nihss: 18, vol: 51.2 },
+        { id: "P-110", fold: 5, nihss: 9, vol: 19.8 }
+      ];
+
+      const renderCvCards = (activeFold) => {
+        const grid = cvStepper.querySelector("#cv-patient-cards");
+        const msg = cvStepper.querySelector("#cv-status-msg");
+        if (!grid) return;
+        grid.innerHTML = patients.map(p => {
+          const isTest = p.fold === activeFold;
+          return `
+            <div class="cv-patient-card ${isTest ? 'is-test' : 'is-train'}">
+              <div><strong>${p.id}</strong> (Fold ${p.fold})</div>
+              <div>${isTest ? '🔴 TEST (Held-out)' : '🔵 TRAIN (Fitted)'}</div>
+              <div style="font-size:0.75rem; opacity:0.8;">NIHSS: ${p.nihss} | Vol: ${p.vol}mL</div>
+            </div>
+          `;
+        }).join('');
+
+        if (msg) {
+          msg.innerHTML = `<strong>Round ${activeFold}:</strong> Patients in Fold ${activeFold} are held out as the <strong>Test Set</strong>. Folds not in Fold ${activeFold} are pooled to fit the regression model. The predictions evaluated for Fold ${activeFold} are <em>honest out-of-fold predictions</em>.`;
+        }
+      };
+
+      cvStepper.querySelectorAll(".cv-tab-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          cvStepper.querySelectorAll(".cv-tab-btn").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          const fold = parseInt(btn.getAttribute("data-fold"), 10);
+          renderCvCards(fold);
+        });
+      });
+      renderCvCards(1);
+    }
 
     const labContainer = document.getElementById("lab-container");
     if (labContainer && typeof lesson.lab === "function") {
