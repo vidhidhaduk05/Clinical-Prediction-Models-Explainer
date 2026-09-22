@@ -201,20 +201,20 @@ print(df.isna().sum())</code></pre>
     },
     sections: [
       {
-        label: "1. The Benchmark Equation from the CVO Manuscript",
+        label: "1. Core Linear Benchmark Formulation",
         html: `
           <div class="formula-card">
             <div class="formula-card__caption">Core Linear Prediction Equation</div>
             <div class="formula-card__equation">
-              FIV = 60.73 + 0.959 × Core - 8.69 × CVO + ε
+              $$\\text{FIV} = 60.73 + 0.959 \\times \\text{Core} - 8.69 \\times \\text{CVO} + \\varepsilon$$
             </div>
             <div class="formula-card__caption">Term-by-Term Clinical Breakdown</div>
             <div class="terms-grid">
-              <div class="term-item"><code>FIV</code> <strong>Outcome:</strong> Final Infarct Volume (in mL) measured on follow-up imaging.</div>
-              <div class="term-item"><code>60.73</code> <strong>Intercept (β₀):</strong> Baseline expected infarct volume when core = 0 and CVO = 0.</div>
-              <div class="term-item"><code>+0.959 × Core</code> <strong>Core Effect (β₁):</strong> Each 1 mL of baseline CTP ischemic core increases final infarct volume by 0.959 mL.</div>
-              <div class="term-item"><code>-8.69 × CVO</code> <strong>Venous Buffer (β₂):</strong> Each 1-point increase in Cortical Venous Outflow (0–6) spares 8.69 mL of brain tissue.</div>
-              <div class="term-item"><code>ε</code> <strong>Residual Error:</strong> Unmodeled patient variation (collateral status, recanalization timing).</div>
+              <div class="term-item"><code>$\\text{FIV}$</code> <strong>Outcome:</strong> Final Infarct Volume (in mL) measured on follow-up imaging.</div>
+              <div class="term-item"><code>$60.73$</code> <strong>Intercept ($\\beta_0$):</strong> Baseline expected infarct volume when $\\text{core} = 0$ and $\\text{CVO} = 0$.</div>
+              <div class="term-item"><code>$+0.959 \\times \\text{Core}$</code> <strong>Core Effect ($\\beta_1$):</strong> Each 1 mL of baseline CTP ischemic core increases final infarct volume by 0.959 mL.</div>
+              <div class="term-item"><code>$-8.69 \\times \\text{CVO}$</code> <strong>Venous Buffer ($\\beta_2$):</strong> Each 1-point increase in Cortical Venous Outflow (0–6) spares 8.69 mL of brain tissue.</div>
+              <div class="term-item"><code>$\\varepsilon$</code> <strong>Residual Error:</strong> Unmodeled patient variation (collateral status, recanalization timing).</div>
             </div>
           </div>
         `
@@ -309,18 +309,18 @@ print(df.isna().sum())</code></pre>
       {
         label: "1. The Four Continuous Metrics in the Stroke Paper",
         html: `
-          <p>The CVO recalibration manuscript evaluated models using four complementary metrics:</p>
+          <p>The continuous calibration and dynamic updating framework evaluated models using four complementary metrics:</p>
           <div class="formula-card">
             <div class="formula-card__caption">Continuous Error & Fit Formulations</div>
             <div class="formula-card__equation">
-              MAE = \frac{1}{n}\sum |y_i - \hat{y}_i| \qquad RMSE = \sqrt{\frac{1}{n}\sum (y_i - \hat{y}_i)^2} \qquad R^2 = 1 - \frac{\sum (y_i - \hat{y}_i)^2}{\sum (y_i - \bar{y})^2}
+              $$\\text{MAE} = \\frac{1}{n}\\sum_{i=1}^n |y_i - \\hat{y}_i| \\qquad \\text{RMSE} = \\sqrt{\\frac{1}{n}\\sum_{i=1}^n (y_i - \\hat{y}_i)^2} \\qquad R^2 = 1 - \\frac{\\sum_{i=1}^n (y_i - \\hat{y}_i)^2}{\\sum_{i=1}^n (y_i - \\bar{y})^2}$$
             </div>
             <div class="formula-card__caption">Penalty Mechanism & Clinical Behavior</div>
             <div class="terms-grid">
-              <div class="term-item"><code>y_i - \hat{y}_i</code> <strong>Residual Error:</strong> True observed lesion volume minus model predicted volume.</div>
-              <div class="term-item"><code>MAE</code> <strong>Linear Penalty:</strong> Average magnitude of clinical misses in original physical units (mm³ or mL).</div>
-              <div class="term-item"><code>RMSE</code> <strong>Quadratic Penalty:</strong> Squares errors before rooting; heavily penalizes catastrophic misses.</div>
-              <div class="term-item"><code>R^2</code> <strong>Explained Variance:</strong> Proportion of variance explained compared to a naive model predicting cohort mean $\bar{y}$.</div>
+              <div class="term-item"><code>$y_i - \\hat{y}_i$</code> <strong>Residual Error:</strong> True observed lesion volume minus model predicted volume.</div>
+              <div class="term-item"><code>$\\text{MAE}$</code> <strong>Linear Penalty:</strong> Average magnitude of clinical misses in original physical units (mm³ or mL).</div>
+              <div class="term-item"><code>$\\text{RMSE}$</code> <strong>Quadratic Penalty:</strong> Squares errors before rooting; heavily penalizes catastrophic misses.</div>
+              <div class="term-item"><code>$R^2$</code> <strong>Explained Variance:</strong> Proportion of variance explained compared to a naive model predicting cohort mean $\\bar{y}$.</div>
             </div>
           </div>
           <div class="metric-grid">
@@ -354,7 +354,7 @@ print(df.isna().sum())</code></pre>
             <h4>The Great $R^2$ Shock:</h4>
             <p>In standard textbook training sets, $R^2$ is bounded between 0 and 1. But on held-out test folds, <strong>cross-validated $R^2$ can easily be negative</strong>!</p>
             <div class="formula">
-              R² = 1 - [ SS_residual / SS_total ] = 1 - [ ∑(y - ŷ)² / ∑(y - ȳ)² ]
+              $$R^2 = 1 - \\frac{\\text{SS}_{\\text{res}}}{\\text{SS}_{\\text{tot}}} = 1 - \\frac{\\sum_{i=1}^n (y_i - \\hat{y}_i)^2}{\\sum_{i=1}^n (y_i - \\bar{y})^2}$$
             </div>
             <p>If your model's predictions $\\\\hat{y}$ on new patients perform <em>worse</em> than simply guessing the dataset average $\\\\bar{y}$ for every patient, then $SS_{\\\\text{residual}} > SS_{\\\\text{total}}$, driving $R^2 < 0$. A negative $R^2$ is a mathematical alarm that your model has overfitted and is harming predictive accuracy.</p>
           </div>
@@ -382,7 +382,7 @@ print(df.isna().sum())</code></pre>
               <button class="quiz-opt" data-correct="false">D) The model underestimates tissue loss.</button>
             </div>
             <div class="quiz-explanation">
-              <strong>Explanation:</strong> Signed error preserves the direction: $\\\\text{Predicted} - \\\\text{Actual}$. A positive signed error (+18.4 mL) means predictions are systematically higher than reality, leading to overly pessimistic prognostication.
+              <strong>Explanation:</strong> Signed error preserves the direction: $\\text{Predicted} - \\text{Actual}$. A positive signed error (+18.4 mL) means predictions are systematically higher than reality, leading to overly pessimistic prognostication.
             </div>
           </div>
         `
@@ -482,18 +482,18 @@ print(df.isna().sum())</code></pre>
       {
         label: "1. The Benchmark Logistic Model in Stroke",
         html: `
-          <div class="formula-card">
+                    <div class="formula-card">
             <div class="formula-card__caption">The Logistic Link & Probability Equation</div>
             <div class="formula-card__equation">
-              \text{logit}(p) = \ln\left(\frac{p}{1-p}\right) = \beta_0 + \sum \beta_k X_k \implies p = \frac{1}{1 + e^{-(\beta_0 + \sum \beta_k X_k)}}
+              $$\\text{logit}(p) = \\ln\\left(\\frac{p}{1-p}\\right) = \\beta_0 + \\sum_{k=1}^K \\beta_k X_k \\implies p = \\frac{1}{1 + e^{-(\\beta_0 + \\sum_{k=1}^K \\beta_k X_k)}}$$
             </div>
             <div class="formula-card__caption">Term-by-Term Mathematical Breakdown</div>
             <div class="terms-grid">
-              <div class="term-item"><code>p</code> <strong>Event Probability:</strong> Probability of favorable outcome (mRS 0–2), strictly bounded in (0, 1).</div>
-              <div class="term-item"><code>p / (1 - p)</code> <strong>Odds:</strong> Ratio of success to failure probability (e.g., 0.80 / 0.20 = 4.0).</div>
-              <div class="term-item"><code>\ln(\text{Odds})</code> <strong>Logit Link:</strong> Maps bounded probabilities into an unbounded scale $(-\infty, +\infty)$ suitable for linear addition.</div>
-              <div class="term-item"><code>e^{\beta_k}</code> <strong>Odds Ratio (OR):</strong> Multiplicative scaling of event odds per 1-unit increase in clinical predictor $X_k$.</div>
-              <div class="term-item"><code>\beta_0</code> <strong>Baseline Log-Odds:</strong> Expected log-odds for a reference patient where all covariates $X_k = 0$.</div>
+              <div class="term-item"><code>$p$</code> <strong>Event Probability:</strong> Probability of favorable outcome (mRS 0–2), strictly bounded in $(0, 1)$.</div>
+              <div class="term-item"><code>$\\frac{p}{1 - p}$</code> <strong>Odds:</strong> Ratio of success to failure probability (e.g., $0.80 / 0.20 = 4.0$).</div>
+              <div class="term-item"><code>$\\ln(\\text{Odds})$</code> <strong>Logit Link:</strong> Maps bounded probabilities into an unbounded scale $(-\\infty, +\\infty)$ suitable for linear addition.</div>
+              <div class="term-item"><code>$e^{\\beta_k}$</code> <strong>Odds Ratio (OR):</strong> Multiplicative scaling of event odds per 1-unit increase in clinical predictor $X_k$.</div>
+              <div class="term-item"><code>$\\beta_0$</code> <strong>Baseline Log-Odds:</strong> Expected log-odds for a reference patient where all covariates $X_k = 0$.</div>
             </div>
           </div>
           <div class="patient-calc">
@@ -615,17 +615,17 @@ print(df.isna().sum())</code></pre>
       {
         label: "2. The Proportional Odds Cumulative Logit Model",
         html: `
-          <div class="formula-card">
+                    <div class="formula-card">
             <div class="formula-card__caption">The Cumulative Logit (Proportional Odds) Equation</div>
             <div class="formula-card__equation">
-              \text{logit}(P(Y \le j)) = \alpha_j - (\beta_1 X_1 + \beta_2 X_2 + \dots + \beta_k X_k)
+              $$\\text{logit}(P(Y \\le j)) = \\alpha_j - (\\beta_1 X_1 + \\beta_2 X_2 + \\dots + \\beta_k X_k)$$
             </div>
             <div class="formula-card__caption">Term-by-Term Mathematical Breakdown</div>
             <div class="terms-grid">
-              <div class="term-item"><code>Y \le j</code> <strong>Cumulative Threshold:</strong> Probability of achieving functional disability level $j$ or better ($j \in \{0, 1, \dots, 5\}$).</div>
-              <div class="term-item"><code>\alpha_j</code> <strong>Cutpoint Intercepts:</strong> Monotonically increasing thresholds ($\alpha_0 < \alpha_1 < \dots < \alpha_5$) defining baseline category splits.</div>
-              <div class="term-item"><code>\beta_k</code> <strong>Shared Slope Vector:</strong> Assumes predictor effects are mathematically identical across every disability hurdle (Proportional Odds).</div>
-              <div class="term-item"><code>\text{cOR} = e^{\beta}</code> <strong>Common Odds Ratio:</strong> Uniform odds multiplier for achieving a more favorable score across the entire mRS continuum.</div>
+              <div class="term-item"><code>$Y \\le j$</code> <strong>Cumulative Threshold:</strong> Probability of achieving functional disability level $j$ or better ($j \\in \\{0, 1, \\dots, 5\\}$).</div>
+              <div class="term-item"><code>$\\alpha_j$</code> <strong>Cutpoint Intercepts:</strong> Monotonically increasing thresholds ($\\alpha_0 < \\alpha_1 < \\dots < \\alpha_5$) defining baseline category splits.</div>
+              <div class="term-item"><code>$\\beta_k$</code> <strong>Shared Slope Vector:</strong> Assumes predictor effects are mathematically identical across every disability hurdle (Proportional Odds).</div>
+              <div class="term-item"><code>$\\text{cOR} = e^{\\beta}$</code> <strong>Common Odds Ratio:</strong> Uniform odds multiplier for achieving a more favorable score across the entire mRS continuum.</div>
             </div>
           </div>
           <div class="metric-grid">
@@ -698,17 +698,17 @@ print(df.isna().sum())</code></pre>
               <p class="subtle">Did the patient experience recurrent stroke, or did follow-up end safely?</p>
             </div>
           </div>
-          <div class="formula-card">
+                    <div class="formula-card">
             <div class="formula-card__caption">Survival & Cox Proportional Hazards Equations</div>
             <div class="formula-card__equation">
-              \hat{S}(t) = \prod_{t_i \le t} \left[1 - \frac{d_i}{n_i}\right] \qquad \lambda(t | X) = \lambda_0(t) \cdot \exp\left(\sum \beta_k X_k\right)
+              $$\\hat{S}(t) = \\prod_{t_i \\le t} \\left[1 - \\frac{d_i}{n_i}\\right] \\qquad \\lambda(t \\mid X) = \\lambda_0(t) \\cdot \\exp\\left(\\sum_{k=1}^K \\beta_k X_k\\right)$$
             </div>
             <div class="formula-card__caption">Term-by-Term Mathematical Breakdown</div>
             <div class="terms-grid">
-              <div class="term-item"><code>\hat{S}(t)</code> <strong>Survival Probability:</strong> Cumulative probability of remaining event-free up to time $t$.</div>
-              <div class="term-item"><code>d_i / n_i</code> <strong>Instantaneous Failures:</strong> Number of patients having an event at time $t_i$ divided by active patients at risk.</div>
-              <div class="term-item"><code>\lambda_0(t)</code> <strong>Baseline Hazard:</strong> Underlying non-parametric event risk over time when all covariates equal zero.</div>
-              <div class="term-item"><code>\exp(\beta_k)</code> <strong>Hazard Ratio (HR):</strong> Relative multiplicative shift in event rate per unit change in clinical predictor $X_k$.</div>
+              <div class="term-item"><code>$\\hat{S}(t)$</code> <strong>Survival Probability:</strong> Cumulative probability of remaining event-free up to time $t$.</div>
+              <div class="term-item"><code>$\\frac{d_i}{n_i}$</code> <strong>Instantaneous Failures:</strong> Number of patients having an event at time $t_i$ divided by active patients at risk.</div>
+              <div class="term-item"><code>$\\lambda_0(t)$</code> <strong>Baseline Hazard:</strong> Underlying non-parametric event risk over time when all covariates equal zero.</div>
+              <div class="term-item"><code>$\\exp(\\beta_k)$</code> <strong>Hazard Ratio (HR):</strong> Relative multiplicative shift in event rate per unit change in clinical predictor $X_k$.</div>
             </div>
           </div>
         `
@@ -920,7 +920,7 @@ print(df.isna().sum())</code></pre>
       {
         label: "1. The Biology of Fast vs. Slow Progressors",
         html: `
-          <p>From Paper 3 (Fast Responders in Favourable CTP) and Paper 4 (NWU Progression):</p>
+          <p>From Clinical Evidence Syntheses (Fast Responders & Tissue Trajectories):</p>
           <div class="metric-grid">
             <div class="metric">
               <span>Fast Progressors</span>
@@ -937,16 +937,16 @@ print(df.isna().sum())</code></pre>
             <h4>Net Water Uptake (NWU) as a Phenotyping Biomarker:</h4>
             <p>CT-derived NWU quantifies ionic edema per unit of ischemic brain tissue. A patient with <em>greater than expected NWU progression</em> exhibits blood-brain barrier breakdown that predicts secondary hemorrhagic transformation and malignant edema regardless of successful vessel recanalization.</p>
           </div>
-          <div class="formula-card">
-            <div class="formula-card__caption">Residual Phenotyping Formulation (Paper 4)</div>
+                    <div class="formula-card">
+            <div class="formula-card__caption">Residual Phenotyping Formulation</div>
             <div class="formula-card__equation">
-              \text{Residual}_i = \text{NWU}_i^{\text{Observed}} - f(\text{Time}_i, \text{Collaterals}_i, \text{Core}_i)
+              $$\\text{Residual}_i = \\text{NWU}_i^{\\text{Observed}} - f(\\text{Time}_i, \\text{Collaterals}_i, \\text{Core}_i)$$
             </div>
             <div class="formula-card__caption">Clinical Biological Phenotypes</div>
             <div class="terms-grid">
-              <div class="term-item"><code>\text{Residual} > +1.5\sigma</code> <strong>Malignant Progressor:</strong> Edema velocity exceeds expectation; high risk of midline shift and fatal herniation.</div>
-              <div class="term-item"><code>\text{Residual} \approx 0</code> <strong>Expected Progressor:</strong> Edema rate adheres to baseline predicted ischemia-perfusion kinetics.</div>
-              <div class="term-item"><code>\text{Residual} < -1.5\sigma</code> <strong>Protected Phenotype:</strong> Microvascular resilience preserves blood-brain barrier despite severe occlusion.</div>
+              <div class="term-item"><code>$\\text{Residual} > +1.5\\sigma$</code> <strong>Malignant Progressor:</strong> Edema velocity exceeds expectation; high risk of midline shift and fatal herniation.</div>
+              <div class="term-item"><code>$\\text{Residual} \\approx 0$</code> <strong>Expected Progressor:</strong> Edema rate adheres to baseline predicted ischemia-perfusion kinetics.</div>
+              <div class="term-item"><code>$\\text{Residual} < -1.5\\sigma$</code> <strong>Protected Phenotype:</strong> Microvascular resilience preserves blood-brain barrier despite severe occlusion.</div>
             </div>
           </div>
         `
@@ -1180,7 +1180,7 @@ print(df.isna().sum())</code></pre>
         html: `
           <div class="quiz-box">
             <h4>🧠 Clinical Intuition Quiz</h4>
-            <p>A stroke manuscript reports an apparent $R^2$ of <strong>0.335</strong> on the development cohort, but repeated 5-fold cross-validation reveals an out-of-fold $R^2$ of <strong>0.077</strong>. Which metric reflects the model's true predictive power on future patients?</p>
+            <p>A clinical modeling study reports an apparent $R^2$ of <strong>0.335</strong> on the development cohort, but repeated 5-fold cross-validation reveals an out-of-fold $R^2$ of <strong>0.077</strong>. Which metric reflects the model's true predictive power on future patients?</p>
             <div class="quiz-options">
               <button class="quiz-opt" data-correct="false">A) 0.335 (because it used the full sample)</button>
               <button class="quiz-opt" data-correct="true">B) 0.077 (cross-validated performance honestly reflects generalization to unseen patients)</button>
@@ -1188,7 +1188,7 @@ print(df.isna().sum())</code></pre>
               <button class="quiz-opt" data-correct="false">D) Neither</button>
             </div>
             <div class="quiz-explanation">
-              <strong>Explanation:</strong> This is the exact finding from the CVO recalibration manuscript! The apparent $R^2 = 0.335$ was inflated by overfitting to training noise. The out-of-fold $R^2 = 0.077$ represents true generalizability.
+              <strong>Explanation:</strong> This is the exact finding from the continuous calibration and dynamic updating framework! The apparent $R^2 = 0.335$ was inflated by overfitting to training noise. The out-of-fold $R^2 = 0.077$ represents true generalizability.
             </div>
           </div>
         `
@@ -1227,7 +1227,7 @@ print(df.isna().sum())</code></pre>
         label: "2. The Magic of Out-of-Bag (OOB) Patients",
         html: `
           <div class="formula">
-            Probability of Patient Never Being Drawn: lim (1 - 1/N)ᴺ = 1 / e ≈ 36.8%
+            $$\\lim_{N \\to \\infty} \\left(1 - \\frac{1}{N}\\right)^N = \\frac{1}{e} \\approx 36.8\\% \\quad \\text{(Out-of-Bag Rate)}$$
           </div>
           <p>In every bootstrap iteration, approximately <strong>36.8% of patients are completely left out</strong>. These out-of-bag patients serve as a pristine, uncontaminated test set, providing low-variance estimates of out-of-sample calibration and discrimination.</p>
         `
@@ -1351,16 +1351,16 @@ print(df.isna().sum())</code></pre>
       {
         label: "1. Calibration Intercept and Calibration Slope",
         html: `
-          <div class="formula-card">
+                    <div class="formula-card">
             <div class="formula-card__caption">Calibration Assessment & Logistic Recalibration</div>
             <div class="formula-card__equation">
-              \text{logit}(P(Y=1)) = \alpha + \beta \cdot \text{logit}(\hat{p}) \qquad \text{Brier} = \frac{1}{N}\sum (\hat{p}_i - y_i)^2
+              $$\\text{logit}(p_{\\text{new}}) = a + b \\cdot \\text{logit}(p_{\\text{orig}})$$
             </div>
-            <div class="formula-card__caption">Term-by-Term Clinical Interpretation</div>
+            <div class="formula-card__caption">Interpretation of Recalibration Parameters</div>
             <div class="terms-grid">
-              <div class="term-item"><code>\alpha = 0.0</code> <strong>Calibration-in-the-Large:</strong> Evaluates overall baseline risk calibration. Negative values ($\alpha < 0$) indicate systemic overestimation.</div>
-              <div class="term-item"><code>\beta = 1.0</code> <strong>Calibration Slope:</strong> Ideal is 1.0. A slope $< 1.0$ is the classic signature of overfitting (extreme probabilities too high and low).</div>
-              <div class="term-item"><code>\text{Brier Score}</code> <strong>Overall Accuracy:</strong> Mean squared error of probabilities ($0 \le \text{Brier} \le 1$). Lower is superior.</div>
+              <div class="term-item"><code>a</code> <strong>Calibration Intercept:</strong> Assesses overall calibration-in-the-large. $a = 0$ indicates perfect baseline agreement; $a > 0$ indicates underestimation.</div>
+              <div class="term-item"><code>b</code> <strong>Calibration Slope:</strong> Assesses predictor effect scaling. $b = 1.0$ indicates perfect spread; $b < 1.0$ signals overfitting (extreme predictions).</div>
+              <div class="term-item"><code>\\text{Brier}</code> <strong>Overall Accuracy:</strong> $\\frac{1}{N} \\sum_{i=1}^N (p_i - y_i)^2$, capturing discrimination and calibration simultaneously.</div>
             </div>
           </div>
           <div class="metric-grid">
@@ -1383,7 +1383,7 @@ print(df.isna().sum())</code></pre>
           <div class="patient-calc">
             <h4>Quantifying Probabilistic Accuracy with the Brier Score:</h4>
             <div class="formula">
-              Brier Score = (1 / N) · ∑ (p̂ᵢ - yᵢ)²
+              $$\\text{Brier Score} = \\frac{1}{N} \\sum_{i=1}^N (\\hat{p}_i - y_i)^2$$
             </div>
             <p>The Brier score measures the mean squared difference between predicted probabilities (0 to 1) and actual binary patient outcomes (0 or 1). A lower score indicates superior calibration and sharpness (0.0 is perfect clairvoyance; 0.25 is uninformative guessing for a 50% baseline event rate).</p>
           </div>
@@ -1432,16 +1432,16 @@ print(df.isna().sum())</code></pre>
       {
         label: "1. The Net Benefit Mathematical Equation",
         html: `
-          <div class="formula-card">
+                    <div class="formula-card">
             <div class="formula-card__caption">Vickers' Net Clinical Benefit Formulation</div>
             <div class="formula-card__equation">
-              \text{Net Benefit} = \frac{\text{TP}}{N} - \frac{\text{FP}}{N} \cdot \left(\frac{p_t}{1 - p_t}\right)
+              $$\\text{Net Benefit} = \\frac{\\text{TP}}{N} - \\frac{\\text{FP}}{N} \\cdot \\left(\\frac{p_t}{1 - p_t}\\right)$$
             </div>
             <div class="formula-card__caption">Term-by-Term Decision Breakdown</div>
             <div class="terms-grid">
-              <div class="term-item"><code>\text{TP} / N</code> <strong>True Positive Rate:</strong> Benefit proportion — patients correctly identified who receive life-saving treatment.</div>
-              <div class="term-item"><code>\text{FP} / N</code> <strong>False Positive Rate:</strong> Harm proportion — patients unnecessarily subjected to therapy risks.</div>
-              <div class="term-item"><code>p_t / (1 - p_t)</code> <strong>Harm Weighting:</strong> Exchange rate setting the relative cost of a false alarm versus a missed true case.</div>
+              <div class="term-item"><code>$\\frac{\\text{TP}}{N}$</code> <strong>True Positive Rate:</strong> Benefit from identifying patients who genuinely suffer the event and receive timely treatment.</div>
+              <div class="term-item"><code>$\\frac{\\text{FP}}{N}$</code> <strong>False Positive Harm:</strong> Unnecessary interventions, medication adverse events, or invasive procedural risks.</div>
+              <div class="term-item"><code>$\\frac{p_t}{1 - p_t}$</code> <strong>Harm-to-Benefit Weight:</strong> Odds at decision threshold $p_t$, encoding the clinical cost ratio of false alarms vs misses.</div>
             </div>
           </div>
           <div class="patient-calc">
@@ -1595,7 +1595,7 @@ print(df.isna().sum())</code></pre>
           <div class="patient-calc" style="margin-top:15px;">
             <h4>ELASTIC NET: The Hybrid Compromise</h4>
             <div class="formula">
-              Elastic Net Penalty = λ · [ α · ∑ |βⱼ| + (1 - α) / 2 · ∑ βⱼ² ]
+              $$\\text{Elastic Net Loss} = \\text{Loss} + \\lambda \\left[ \\alpha \\sum_{j=1}^p |\\beta_j| + \\frac{1 - \\alpha}{2} \\sum_{j=1}^p \\beta_j^2 \\right]$$
             </div>
             <p>Lasso arbitrarily picks only one predictor from a group of correlated clinical measurements (e.g., picking systolic BP and ignoring pulse pressure). Elastic Net groups correlated biomarkers together, retaining the entire biological cluster while shrinking noise.</p>
           </div>
@@ -1798,7 +1798,7 @@ print(df.isna().sum())</code></pre>
           </div>
           <div class="patient-calc" style="margin-top:15px;">
             <h4>TIER 3: MODEL REVISION & EXTENSION — Adding Novel Biomarkers</h4>
-            <p>Re-estimates specific predictor weights or incorporates an entirely new biological modality — exactly what the <em>CVO CTP recalibration manuscript</em> achieved by augmenting conventional perfusion core volume with cortical venous outflow!</p>
+            <p>Re-estimates specific predictor weights or incorporates an entirely new biological modality — exactly what continuous recalibration frameworks achieve by augmenting conventional perfusion core volume with cortical venous outflow!</p>
           </div>
         `
       },
@@ -1862,7 +1862,7 @@ print(df.isna().sum())</code></pre>
         html: `
           <div class="presentation-gold">
             <h4>💡 Presentation Gold: The One Sentence to Memorize</h4>
-            <p>"A clinical prediction manuscript that conceals its intercept, full mathematical equation, or calibration curve cannot be evaluated or externally validated; adherence to TRIPOD+AI is non-negotiable for clinical translation."</p>
+            <p>"A clinical prediction report that conceals its intercept, full mathematical equation, or calibration curve cannot be evaluated or externally validated; adherence to TRIPOD+AI is non-negotiable for clinical translation."</p>
           </div>
         `
       },
@@ -2714,7 +2714,7 @@ function renderInteractionsLab(container) {
         if (rExc) rExc.textContent = "38%";
         if (ard) ard.textContent = "+20.0%";
         if (syn) syn.textContent = "High (p=0.012)";
-        if (sumEl) sumEl.innerHTML = "<strong>Manuscript Anchor:</strong> High baseline edema combined with excess progression creates catastrophic tissue loss, driving a +20.0% adjusted absolute mortality difference.";
+        if (sumEl) sumEl.innerHTML = "<strong>Clinical Evidence:</strong> High baseline edema combined with excess progression creates catastrophic tissue loss, driving a +20.0% adjusted absolute mortality difference.";
       }
     });
   }
@@ -2969,7 +2969,7 @@ function renderCalibrationLab(container) {
       } else if (slope > 1.1) {
         rEl.innerHTML = `<strong>Slope = ${slope.toFixed(2)} &gt; 1.0:</strong> Underfitting. The model predictions are overly conservative and shrunk too close to the cohort mean.`;
       } else {
-        rEl.innerHTML = `<strong>Manuscript Anchor:</strong> Calibration slope 0.91 and Brier score 0.107 demonstrate reliable, well-calibrated probabilistic forecasts for clinical decision-making.`;
+        rEl.innerHTML = `<strong>Clinical Evidence:</strong> Calibration slope 0.91 and Brier score 0.107 demonstrate reliable, well-calibrated probabilistic forecasts for clinical decision-making.`;
       }
     }
   }
@@ -3373,66 +3373,11 @@ function renderAntipatternsLab(container) {
 }
 
 /* ==========================================================================
-   Special Pages: The Four Papers & Sources
+   Special Pages: Sources & Clinical Methodology Standards
    ========================================================================== */
 
-function renderPapersPage(container) {
-  container.innerHTML = `
-    <div class="lesson-head">
-      <div class="eyebrow">APPLIED STROKE RESEARCH MAP</div>
-      <h1>The Four Benchmark Manuscripts</h1>
-      <p class="lead">Every statistical lesson in this curriculum is anchored in peer-reviewed acute ischemic stroke research from international thrombectomy registries.</p>
-    </div>
-    <div class="paper-grid" style="margin-top: 35px;">
-      <!-- Paper 1 -->
-      <div class="paper-card">
-        <div class="paper-id">MANUSCRIPT 1 · EDEMA PHENOTYPING</div>
-        <h2>Greater-than-Expected NWU Progression After Thrombectomy</h2>
-        <p>Derives a residual edema phenotype capturing malignant progression beyond baseline volume expectations.</p>
-        <dl>
-          <dt>Study Cohort</dt><dd>n = 626 edema analysis, n = 600 with 90-day mRS</dd>
-          <dt>Key Methods</dt><dd>Restricted cubic splines, ANCOVA, Full-pipeline bootstrap, Marginal standardization</dd>
-          <dt>Key Results</dt><dd>Progression AUC 0.55 alone; Death AUC 0.84 with baseline clinical factors; <strong>Adjusted mortality risk difference +20.0%</strong> in high admission edema.</dd>
-        </dl>
-      </div>
-
-      <!-- Paper 2 -->
-      <div class="paper-card">
-        <div class="paper-id">MANUSCRIPT 2 · PERFUSION RECALIBRATION</div>
-        <h2>Integrating Cerebral Venous Outflow with CT Perfusion</h2>
-        <p>Evaluates whether cortical venous outflow recalibrates ischemic lesion predictions and improves functional prognosis.</p>
-        <dl>
-          <dt>Study Cohorts</dt><dd>527 successfully reperfused, 131 unsuccessful reperfusion</dd>
-          <dt>Key Methods</dt><dd>Repeated stratified 5-fold CV (×20 reps), MICE (25 imputations), Bootstrap (2,000 reps), Linear recalibration</dd>
-          <dt>Key Results</dt><dd>Apparent R² 0.335 drops to Out-of-Bag R² 0.077; MAE ~20,021 mm³; Signed Error +12,900 mm³; Calibration slope 0.91.</dd>
-        </dl>
-      </div>
-
-      <!-- Paper 3 -->
-      <div class="paper-card">
-        <div class="paper-id">MANUSCRIPT 3 · FAVORABLE PERFUSION</div>
-        <h2>Beyond Favorable CT Perfusion in Thrombectomy</h2>
-        <p>Analyzes why patients with favorable CT perfusion profiles still experience poor functional recovery.</p>
-        <dl>
-          <dt>Study Cohort</dt><dd>n = 151 acute anterior circulation strokes (90 poor functional outcomes)</dd>
-          <dt>Key Methods</dt><dd>Proportional odds logistic regression, MICE (m=20), Repeated CV (×10 reps), 1,000 bootstrap replicates</dd>
-          <dt>Key Results</dt><dd>Venous outflow common OR 0.64 per step; Residual perfusion variation AUC 0.65; Full clinical model AUC 0.85.</dd>
-        </dl>
-      </div>
-
-      <!-- Paper 4 -->
-      <div class="paper-card">
-        <div class="paper-id">MANUSCRIPT 4 · HEMORRHAGIC TRANSFORMATION</div>
-        <h2>Striatal Localization of Hemorrhagic Risk After Thrombectomy</h2>
-        <p>Investigates deep anatomical parenchymal hemorrhage patterns and infarct core burden.</p>
-        <dl>
-          <dt>Study Cohort</dt><dd>Thrombectomy registry with adjudicated post-recanalization hemorrhage</dd>
-          <dt>Key Methods</dt><dd>Joint multivariable models, Benjamini-Hochberg FDR correction, Rubin pooling, Optimism correction</dd>
-          <dt>Key Results</dt><dd>Identified striatal territory vulnerability; likelihood ratio tests confirmed non-linear threshold for hemorrhage risk.</dd>
-        </dl>
-      </div>
-    </div>
-  `;
+function function renderPapersPage(container) {
+  renderSourcesPage(container);
 }
 
 function renderSourcesPage(container) {
@@ -3708,7 +3653,7 @@ class App {
         ` : `
           <a href="#papers" class="nav-btn next-btn complete-btn" id="btn-next-lesson">
             <span class="nav-btn__dir">Curriculum Complete →</span>
-            <span class="nav-btn__title">Explore Stroke Manuscripts</span>
+            <span class="nav-btn__title">Evidence Sources & Standards</span>
           </a>
         `}
       </div>

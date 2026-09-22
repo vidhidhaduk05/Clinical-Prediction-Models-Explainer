@@ -9,9 +9,24 @@ scratch/
 test_dom.html
 build_clean.js
 part*.js
+.playwright-mcp/
 
-# Local Private Manuscript Files
+# Local Private Manuscripts, Documents & Research Data (STRICT - ZERO COMMIT)
 *.docx
+*.doc
+*.pdf
+*.csv
+*.tsv
+*.xlsx
+*.xls
+*.parquet
+*.jsonl
+*.db
+*.sqlite
+data/
+raw_data/
+datasets/
+papers/
 
 # Knowledge Graph & Development Cache
 graphify-out/

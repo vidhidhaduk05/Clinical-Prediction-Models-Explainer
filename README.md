@@ -15,7 +15,7 @@ Built entirely without heavy frameworks (pure vanilla JavaScript and curated mod
 - **Everyday Life Analogies** (e.g., the Emergency Department census board, the custom tailor's ruler, the weather forecast penalty).
 - **Interactive Visual Labs** (real-time SVG scatter plots, dynamic sliders, ROC/AUC curve morphing, calibration curve simulations, decision curves).
 - **Mathematical Formula Cards** with term-by-term clinical and algebraic breakdowns ($Y, X, \beta_0, \beta_1, \epsilon$, Odds Ratios, Proportional Odds, Kaplan-Meier & Cox hazards, Brier Score, and Vickers' Net Benefit).
-- **Stroke Manuscript Grounding** based on four contemporary acute ischemic stroke cohorts.
+- **Clinical Case Studies** based on acute care prediction modeling scenarios.
 
 ---
 
@@ -57,13 +57,13 @@ Built entirely without heavy frameworks (pure vanilla JavaScript and curated mod
 
 ---
 
-## Real-World Clinical Evidence
-
-The explainer is structured around findings from four acute ischemic stroke studies:
-1. **CVO CTP Recalibration Study**: Evaluating Cortical Venous Outflow as an imaging buffer against final infarct expansion and documenting the shrinkage of apparent $R^2 = 0.335$ to cross-validated out-of-fold $R^2 = 0.077$.
-2. **ASPECTS Territory & Hemorrhagic Transformation Study**: Investigating regional topographic ischemic damage and secondary hemorrhagic transformation risk.
-3. **Fast Responders in Favourable CTP Profile Study**: Characterizing patient subgroups who achieve dramatic clinical recovery following endovascular thrombectomy.
-4. **Greater than Expected NWU Progression**: Identifying patients with accelerated blood-brain barrier failure and malignant ionic edema via residual phenotyping.
+## Real-World Clinical Modeling Scenarios
+ 
+The explainer is structured around realistic acute medical prediction scenarios:
+1. **Continuous Outcome Calibration**: Evaluating clinical and imaging biomarkers against disease progression and documenting the shrinkage of apparent $R^2 = 0.335$ to cross-validated out-of-fold $R^2 = 0.077$.
+2. **Topographic Risk & Complication Analysis**: Investigating regional tissue vulnerability and secondary complication risks.
+3. **Favorable Risk Profiles & Heterogeneity**: Characterizing patient subgroups who achieve dramatic clinical recovery following critical interventions.
+4. **Residual Phenotyping**: Identifying patients with accelerated physiological deterioration via residual modeling.
 
 ---
 
@@ -99,6 +99,6 @@ Then open `http://localhost:8000` in your web browser.
 ---
 
 ## License & Citation
-
-Published for open-access medical education and statistical transparency.
-When utilizing these interactive modules or curriculum structures in educational lectures or research, please cite the respective acute stroke publications referenced in the curriculum.
+ 
+Published for open-access medical education and statistical transparency under the MIT License.
+When utilizing these interactive modules or curriculum structures in educational lectures or research, please cite this project repository.

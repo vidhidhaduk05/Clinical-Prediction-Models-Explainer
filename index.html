@@ -4,28 +4,31 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Clinical Concepts — Statistics without the fear</title>
-  <meta name="description" content="Interactive medical statistics lessons, from your first data table to clinical prediction models. Based on four stroke manuscripts and a 19-chapter modeling curriculum.">
+  <meta name="description" content="Interactive medical statistics lessons, from foundational data exploration to clinical prediction models, calibration, and decision curve analysis.">
   <meta name="robots" content="noindex,nofollow">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232f48cc'/%3E%3Cpath d='M6 24L12 18L18 19L26 8' fill='none' stroke='white' stroke-width='3'/%3E%3Ccircle cx='12' cy='12' r='2' fill='%236ce0cc'/%3E%3Ccircle cx='22' cy='24' r='2' fill='%236ce0cc'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="style.css">
+  <!-- KaTeX for pristine clinical mathematical typography -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to lesson</a>
   <header class="masthead">
     <div class="masthead__meta">
       <span>THE CLINICAL PREDICTION GAZETTE</span>
-      <span class="masthead__date">VOL. CLXXVI · COMPREHENSIVE STROKE EDITION · "TRUTH IN CALIBRATION"</span>
+      <span class="masthead__date">VOL. CLXXVI · CLINICAL PREDICTION EDITION · "TRUTH IN CALIBRATION"</span>
       <span>A MEDICAL STUDENT'S FIELD GUIDE</span>
     </div>
     <div class="masthead__title-wrap">
       <div class="masthead__title">
         <h1 class="masthead__logo-text">Clinical Concepts</h1>
       </div>
-      <p class="masthead__subtitle">A Visual Broadsheet on Medical Statistics, Prediction Modeling & Stroke Recalibration</p>
+      <p class="masthead__subtitle">A Visual Broadsheet on Medical Statistics, Clinical Prediction Modeling & Model Validation</p>
     </div>
     <nav class="masthead__nav" aria-label="Main navigation">
       <a href="#csv" data-top="lessons" class="active">Learn by doing</a>
-      <a href="#papers" data-top="papers">The four papers</a>
       <a href="#sources" data-top="sources">Sources & scope</a>
       <button id="menu-toggle" class="masthead__menu-btn" aria-expanded="false" aria-controls="sidebar">Table of Contents ▾</button>
     </nav>
@@ -162,7 +165,7 @@
       <div id="content">
         <div class="crumb">
           <span>Start Here · Lesson 1 of 24</span>
-          <a href="#papers" class="pill">View Stroke Papers</a>
+          <a href="#sources" class="pill">Methodology & Sources</a>
         </div>
 
         <div class="lesson-head">
@@ -255,7 +258,7 @@ print(df.isna().sum())</code></pre>
   </div>
 
   <footer class="site-footer">
-    <p class="footer-credit">The Clinical Concepts Explainer · Built around Acute Stroke Research & Prediction Modeling · Published for Medical Education</p>
+    <p class="footer-credit">The Clinical Concepts Explainer · Interactive Medical Statistics & Clinical Prediction Modeling · Published for Medical Education</p>
     <p style="margin-top: 6px;"><a href="#sources" style="font-family: var(--font-sans); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 600; color: var(--color-ink);">Read the Teaching & Methodological Notes →</a></p>
   </footer>
 
