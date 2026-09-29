@@ -4054,96 +4054,61 @@ class App {
     this.contentEl.innerHTML = html;
 
     
-    // Interactive Pedagogical Bindings
-    // 1. Guess Before Reveal Buttons
-    this.contentEl.querySelectorAll(".predict-opt").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const parent = btn.closest(".predict-reveal");
-        if (!parent) return;
-        const isCorrect = btn.getAttribute("data-correct") === "true";
-        parent.querySelectorAll(".predict-opt").forEach(b => {
-          b.disabled = true;
-          if (b === btn) {
-            b.classList.add("selected");
-            b.style.background = isCorrect ? "#eafaf1" : "#fdf2e9";
-            b.style.borderColor = isCorrect ? "#27ae60" : "#e67e22";
-          }
-        });
-        const reveal = parent.querySelector(".predict-reveal-content");
-        if (reveal) reveal.style.display = "block";
-      });
+    // Interactive Pedagogical Bindings via Global Event Delegation
+    // This protects against wiped listeners when components are redrawn (e.g. by MathJax or innerHTML replacing updates)
+
+    // 1 & 2. Guess Before Reveal & Token Explainer logic handled via Delegation
+    this.contentEl.addEventListener('click', (e) => {
+        // Handle Predict-Opt clicks
+        const btn = e.target.closest('.predict-opt');
+        if (btn && !btn.disabled) {
+            const parent = btn.closest('.predict-reveal');
+            if (parent) {
+                const isCorrect = btn.getAttribute('data-correct') === 'true';
+                parent.querySelectorAll('.predict-opt').forEach(b => {
+                    b.disabled = true;
+                    if (b === btn) {
+                        b.classList.add('selected');
+                        b.style.background = isCorrect ? '#eafaf1' : '#fdf2e9';
+                        b.style.borderColor = isCorrect ? '#27ae60' : '#e67e22';
+                    }
+                });
+                const reveal = parent.querySelector('.predict-reveal-content');
+                if (reveal) reveal.style.display = 'block';
+            }
+        }
+
+        // Handle Token-Pill clicks
+        const pill = e.target.closest('.token-pill');
+        if (pill) {
+            const explainerId = pill.getAttribute('data-explainer-id');
+            const container = pill.closest('.token-code-container');
+            if (container && explainerId) {
+                container.querySelectorAll('.token-pill').forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+                container.querySelectorAll('.token-explainer-item').forEach(item => item.classList.remove('active'));
+                const target = container.querySelector('#' + explainerId);
+                if (target) target.classList.add('active');
+            }
+        }
     });
 
-    // 2. Token-by-Token Explainer Pills
-    this.contentEl.querySelectorAll(".token-pill").forEach(pill => {
-      const showExplainer = () => {
-        const explainerId = pill.getAttribute("data-explainer-id");
-        const container = pill.closest(".token-code-container");
+    // We still need mouseenter for token pills which is trickier with delegation, so we bind directly
+    // but it's safe because token blocks aren't typically redrawn post-render
+    this.contentEl.querySelectorAll('.token-pill').forEach(pill => {
+      pill.addEventListener('mouseenter', () => {
+        const explainerId = pill.getAttribute('data-explainer-id');
+        const container = pill.closest('.token-code-container');
         if (!container || !explainerId) return;
-        container.querySelectorAll(".token-pill").forEach(p => p.classList.remove("active"));
-        pill.classList.add("active");
-        container.querySelectorAll(".token-explainer-item").forEach(item => item.classList.remove("active"));
-        const target = container.querySelector("#" + explainerId);
-        if (target) target.classList.add("active");
-      };
-      pill.addEventListener("click", showExplainer);
-      pill.addEventListener("mouseenter", showExplainer);
-    });
-
-    // 3. X vs Y Selector Pills
-    this.contentEl.querySelectorAll(".xy-pill").forEach(pill => {
-      pill.addEventListener("click", () => {
-        const selector = pill.closest(".xy-selector");
-        if (!selector) return;
-        const xyId = pill.getAttribute("data-xy-id");
-        const role = pill.getAttribute("data-target-role");
-
-        if (!pill.classList.contains("in-x") && !pill.classList.contains("in-y")) {
-          if (role === "x") {
-            pill.classList.add("in-x");
-          } else {
-            pill.classList.add("in-y");
-          }
-        } else if (pill.classList.contains("in-x")) {
-          pill.classList.remove("in-x");
-          pill.classList.add("in-y");
-        } else {
-          pill.classList.remove("in-y");
-        }
-
-        const boxX = selector.querySelector("#xy-items-x-" + xyId);
-        const boxY = selector.querySelector("#xy-items-y-" + xyId);
-        const feedback = selector.querySelector("#xy-feedback-" + xyId);
-        const xItems = selector.querySelectorAll(".xy-pill.in-x");
-        const yItems = selector.querySelectorAll(".xy-pill.in-y");
-
-        if (boxX) {
-          boxX.innerHTML = xItems.length
-            ? Array.from(xItems).map(p => `<span class="xy-pill in-x" style="cursor:default;">${p.getAttribute("data-var-name")}</span>`).join(" ")
-            : `<em class="subtle" style="font-size:0.8rem;">Click a variable above to assign it here...</em>`;
-        }
-        if (boxY) {
-          boxY.innerHTML = yItems.length
-            ? Array.from(yItems).map(p => `<span class="xy-pill in-y" style="cursor:default;">${p.getAttribute("data-var-name")}</span>`).join(" ")
-            : `<em class="subtle" style="font-size:0.8rem;">Click a variable above to assign it here...</em>`;
-        }
-
-        if (feedback) {
-          feedback.style.display = "block";
-          const isXCorrect = Array.from(xItems).every(p => p.getAttribute("data-target-role") === "x") && xItems.length > 0;
-          const isYCorrect = Array.from(yItems).every(p => p.getAttribute("data-target-role") === "y") && yItems.length === 1;
-          if (isXCorrect && isYCorrect) {
-            feedback.innerHTML = `<strong>✅ Perfect Clinical Classification!</strong> The baseline measurements (NIHSS, Age, Glucose) are pre-treatment Candidate Predictors ($X$). Final Infarct Volume is your clinical Outcome Target ($Y$).`;
-            feedback.style.background = "#eafaf1";
-            feedback.style.borderColor = "#27ae60";
-          } else {
-            feedback.innerHTML = `<em>Keep organizing: Predictors ($X$) must be available at admission; Outcome Target ($Y$) is the future event to predict.</em>`;
-            feedback.style.background = "var(--color-paper-dark)";
-            feedback.style.borderColor = "var(--color-rule)";
-          }
-        }
+        container.querySelectorAll('.token-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        container.querySelectorAll('.token-explainer-item').forEach(item => item.classList.remove('active'));
+        const target = container.querySelector('#' + explainerId);
+        if (target) target.classList.add('active');
       });
     });
+
+    // 3. X vs Y Selector Pills - Logic replaced by native drag-and-drop HTML handlers
 
     // 4. Cross-Validation Stepper
     const cvStepper = this.contentEl.querySelector("#cv-stepper-widget");
@@ -4199,6 +4164,11 @@ class App {
       } catch (err) {
         console.error('Error rendering lab for lesson ' + id, err);
       }
+    }
+
+    // Reparse MathJax on the whole content explicitly after lab renders
+    if (window.MathJax) {
+      window.MathJax.typesetPromise([this.contentEl]).catch(err => console.error(err));
     }
   }
 }
