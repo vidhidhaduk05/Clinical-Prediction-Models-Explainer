@@ -194,7 +194,7 @@ function renderXYSelector(id, clinicalQuestion, variables) {
   return `
     <div class="xy-selector" id="xy-${id}">
       <div class="xy-prompt"><strong>Step 1: Clinical Question</strong> — "${clinicalQuestion}"</div>
-      <p class="subtle">Click each clinical variable below to categorize it into <strong>What We Know ($X$, Candidate Predictor)</strong> vs. <strong>What We Want to Predict ($Y$, Outcome Target)</strong>:</p>
+      <p class="subtle">Click each clinical variable below to categorize it into <strong>What We Know (\\$X\\$, Candidate Predictor)</strong> vs. <strong>What We Want to Predict (\\$Y\\$, Outcome Target)</strong>:</p>
       <div class="xy-card-bank">
         ${variables.map((v, i) => `
           <span class="xy-pill" data-xy-id="${id}" data-var-idx="${i}" data-target-role="${v.role}" data-var-name="${v.name}">
@@ -205,7 +205,7 @@ function renderXYSelector(id, clinicalQuestion, variables) {
       <div class="xy-columns">
         <div class="xy-box" id="xy-box-x-${id}">
           <div class="xy-box-title">
-            <span>What We Know ($X$, Candidate Predictor)</span>
+            <span>What We Know (\\$X\\$, Candidate Predictor)</span>
             <span class="badge">Input</span>
           </div>
           <div class="xy-box-items" id="xy-items-x-${id}">
@@ -214,7 +214,7 @@ function renderXYSelector(id, clinicalQuestion, variables) {
         </div>
         <div class="xy-box" id="xy-box-y-${id}">
           <div class="xy-box-title">
-            <span>What We Want to Predict ($Y$, Outcome Target)</span>
+            <span>What We Want to Predict (\\$Y\\$, Outcome Target)</span>
             <span class="badge">Target</span>
           </div>
           <div class="xy-box-items" id="xy-items-y-${id}">
@@ -406,7 +406,7 @@ const LESSON_CONTENT = {
           <div class="patient-calc" style="margin-top:14px;">
             <h4>The Universal Predictive Pattern:</h4>
             <p><strong>Predictor ($X$):</strong> What information we have available at the moment of prediction (admission NIHSS score).<br>
-            <strong>Outcome ($Y$):</strong> The future biological event we want to estimate (Final Infarct Volume in mL on follow-up imaging).</p>
+            <strong>Outcome (\\$Y\\$):</strong> The future biological event we want to estimate (Final Infarct Volume in mL on follow-up imaging).</p>
           </div>
         `
       },
@@ -4089,6 +4089,61 @@ class App {
                 container.querySelectorAll('.token-explainer-item').forEach(item => item.classList.remove('active'));
                 const target = container.querySelector('#' + explainerId);
                 if (target) target.classList.add('active');
+            }
+        }
+
+        // Handle XY-Pill clicks
+        const xyPill = e.target.closest('.xy-pill');
+        if (xyPill) {
+            const selector = xyPill.closest('.xy-selector');
+            if (selector) {
+                const xyId = xyPill.getAttribute('data-xy-id');
+                const role = xyPill.getAttribute('data-target-role');
+
+                if (!xyPill.classList.contains('in-x') && !xyPill.classList.contains('in-y')) {
+                    if (role === 'x') {
+                        xyPill.classList.add('in-x');
+                    } else {
+                        xyPill.classList.add('in-y');
+                    }
+                } else if (xyPill.classList.contains('in-x')) {
+                    xyPill.classList.remove('in-x');
+                    xyPill.classList.add('in-y');
+                } else {
+                    xyPill.classList.remove('in-y');
+                }
+
+                const boxX = selector.querySelector('#xy-items-x-' + xyId);
+                const boxY = selector.querySelector('#xy-items-y-' + xyId);
+                const feedback = selector.querySelector('#xy-feedback-' + xyId);
+                const xItems = selector.querySelectorAll('.xy-pill.in-x');
+                const yItems = selector.querySelectorAll('.xy-pill.in-y');
+
+                if (boxX) {
+                    boxX.innerHTML = xItems.length
+                        ? Array.from(xItems).map(p => `<span class="xy-pill in-x" style="cursor:default;">${p.getAttribute("data-var-name")}</span>`).join(" ")
+                        : `<em class="subtle" style="font-size:0.8rem;">Click a variable above to assign it here...</em>`;
+                }
+                if (boxY) {
+                    boxY.innerHTML = yItems.length
+                        ? Array.from(yItems).map(p => `<span class="xy-pill in-y" style="cursor:default;">${p.getAttribute("data-var-name")}</span>`).join(" ")
+                        : `<em class="subtle" style="font-size:0.8rem;">Click a variable above to assign it here...</em>`;
+                }
+
+                if (feedback) {
+                    feedback.style.display = 'block';
+                    const isXCorrect = Array.from(xItems).every(p => p.getAttribute('data-target-role') === 'x') && xItems.length > 0;
+                    const isYCorrect = Array.from(yItems).every(p => p.getAttribute('data-target-role') === 'y') && yItems.length === 1;
+                    if (isXCorrect && isYCorrect) {
+                        feedback.innerHTML = `<strong>✅ Perfect Clinical Classification!</strong> The baseline measurements (NIHSS, Age, Glucose) are pre-treatment Candidate Predictors (\\$X\\$). Final Infarct Volume is your clinical Outcome Target (\\$Y\\$).`;
+                        feedback.style.background = '#eafaf1';
+                        feedback.style.borderColor = '#27ae60';
+                    } else {
+                        feedback.innerHTML = `<em>Keep organizing: Predictors (\\$X\\$) must be available at admission; Outcome Target (\\$Y\\$) is the future event to predict.</em>`;
+                        feedback.style.background = 'var(--color-paper-dark)';
+                        feedback.style.borderColor = 'var(--color-rule)';
+                    }
+                }
             }
         }
     });
