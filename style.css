@@ -1931,3 +1931,26 @@ footer.site-footer {
     transition: none !important;
   }
 }
+.xy-pill.placed {
+  cursor: pointer;
+  margin: 4px;
+}
+.xy-pill.placed:hover {
+  opacity: 0.8;
+}
+.xy-pill.placed.correct {
+  background: #eafaf1;
+  border-color: #27ae60;
+  color: #145a32;
+}
+.xy-pill.placed.incorrect {
+  background: #fdf2e9;
+  border-color: #e67e22;
+  color: #784212;
+}
+.xy-pill.dragging {
+  opacity: 0.5;
+}
+.xy-box-items.dragover {
+  background-color: #f9f9f9;
+}

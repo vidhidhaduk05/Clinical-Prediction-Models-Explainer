@@ -4109,6 +4109,114 @@ class App {
     });
 
     // 3. X vs Y Selector Pills - Logic replaced by native drag-and-drop HTML handlers
+    this.contentEl.querySelectorAll('.xy-pill').forEach(pill => {
+      pill.setAttribute('draggable', 'true');
+      pill.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', JSON.stringify({
+          id: pill.getAttribute('data-xy-id'),
+          name: pill.getAttribute('data-var-name'),
+          role: pill.getAttribute('data-target-role'),
+          idx: pill.getAttribute('data-var-idx')
+        }));
+        pill.classList.add('dragging');
+      });
+      pill.addEventListener('dragend', e => {
+        pill.classList.remove('dragging');
+      });
+    });
+
+    this.contentEl.querySelectorAll('.xy-box-items').forEach(box => {
+      box.addEventListener('dragover', e => {
+        e.preventDefault();
+        box.classList.add('dragover');
+      });
+      box.addEventListener('dragleave', e => {
+        box.classList.remove('dragover');
+      });
+      box.addEventListener('drop', e => {
+        e.preventDefault();
+        box.classList.remove('dragover');
+
+        try {
+          const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+          const selectorId = data.id;
+          const boxRole = box.id.includes('-x-') ? 'x' : 'y';
+
+          if (box.id.includes(selectorId)) {
+            const originalPill = this.contentEl.querySelector(`.xy-pill[data-xy-id="${selectorId}"][data-var-idx="${data.idx}"]`);
+            if (originalPill) {
+              // Hide from bank
+              originalPill.style.display = 'none';
+
+              // Remove empty state em if exists
+              const em = box.querySelector('em');
+              if (em) em.style.display = 'none';
+
+              // Add to box
+              const newPill = document.createElement('span');
+              newPill.className = 'xy-pill placed';
+              newPill.textContent = data.name;
+              newPill.dataset.role = data.role;
+
+              if (data.role === boxRole) {
+                newPill.classList.add('correct');
+              } else {
+                newPill.classList.add('incorrect');
+                const feedback = this.contentEl.querySelector(`#xy-feedback-${selectorId}`);
+                if (feedback) {
+                  feedback.style.display = 'block';
+                  feedback.innerHTML = `<strong>Wait!</strong> "${data.name}" should be <strong>${data.role === 'x' ? 'What We Know ($X$)' : 'What We Want to Predict ($Y$)'}</strong>. Keep organizing: Predictors ($X$) must be available at admission; Outcome Target ($Y$) is the future event to predict.`;
+                  feedback.classList.remove('success');
+                  feedback.classList.add('error');
+                }
+              }
+
+              // Click to remove
+              newPill.addEventListener('click', () => {
+                newPill.remove();
+                originalPill.style.display = 'inline-block';
+                if (box.children.length === 0 || (box.children.length === 1 && box.children[0].tagName === 'EM')) {
+                  if (em) em.style.display = 'block';
+                }
+
+                // Clear feedback on remove
+                const feedback = this.contentEl.querySelector(`#xy-feedback-${selectorId}`);
+                if (feedback) feedback.style.display = 'none';
+
+                checkCompletion(selectorId);
+              });
+
+              box.appendChild(newPill);
+              checkCompletion(selectorId);
+            }
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      });
+    });
+
+    const checkCompletion = (selectorId) => {
+      const selector = this.contentEl.querySelector(`#xy-${selectorId}`);
+      if (!selector) return;
+
+      const xBox = selector.querySelector(`#xy-items-x-${selectorId}`);
+      const yBox = selector.querySelector(`#xy-items-y-${selectorId}`);
+      const bank = selector.querySelector('.xy-card-bank');
+
+      const bankVisible = Array.from(bank.querySelectorAll('.xy-pill')).filter(p => p.style.display !== 'none');
+      const allIncorrect = selector.querySelectorAll('.xy-pill.placed.incorrect');
+
+      if (bankVisible.length === 0 && allIncorrect.length === 0) {
+        const feedback = selector.querySelector(`#xy-feedback-${selectorId}`);
+        if (feedback) {
+          feedback.style.display = 'block';
+          feedback.innerHTML = `<strong>Perfect!</strong> You've correctly identified the predictors and outcome target.`;
+          feedback.classList.remove('error');
+          feedback.classList.add('success');
+        }
+      }
+    };
 
     // 4. Cross-Validation Stepper
     const cvStepper = this.contentEl.querySelector("#cv-stepper-widget");
